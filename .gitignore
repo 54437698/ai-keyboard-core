@@ -1,0 +1,13 @@
+# Joint Venture: The Anti-Trash Filter
+*.o
+*.so
+*.out
+.DS_Store
+build/
+bin/
+*.log
+
+# No IDE Bloat
+.idea/
+.gradle/
+*.iml
