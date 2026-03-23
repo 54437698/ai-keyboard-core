@@ -1,13 +1,23 @@
 {
-  "metadata": {
-    "name": "LLM-Keyboard-Core",
-    "version": "1.0.0"
+  "layout_name": "Joint-Venture-ES-v1",
+  "dedicated_rows": {
+    "top": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
   },
-  "layers": {
-    "numbers": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-    "spanish": {
-      "special": ["ñ", "á", "é", "í", "ó", "ú"],
-      "symbols": ["¿", "¡"]
-    }
+  "primary_keys": [
+    ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+    ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ñ"],
+    ["z", "x", "c", "v", "b", "n", "m"]
+  ],
+  "long_press_map": {
+    "a": ["á"],
+    "e": ["é"],
+    "i": ["í"],
+    "o": ["ó"],
+    "u": ["ú"],
+    "n": ["ñ"]
+  },
+  "ai_context": {
+    "default_language": "es-ES",
+    "npu_enabled": true
   }
 }
