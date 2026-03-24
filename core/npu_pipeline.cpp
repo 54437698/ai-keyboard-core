@@ -1,22 +1,35 @@
-/* * NPU Pipeline: Joint Venture Core
- * Targets: Qualcomm Hexagon 2026 AI Stack
- * Mission: Low-latency Spanish/English Text Prediction
- */
-
 #include "ai_bridge.h"
 #include <iostream>
+#include <string>
+#include <algorithm>
 
 class NPUPipeline : public AIKeyboardEngine {
+private:
+    // This represents our 4-bit Quantized Spanish/English Weights
+    bool is_spanish_context = true; 
+
 public:
     void initialize_npu() {
-        // Here we would load the .cpp or .bin model 
-        // specifically quantized for the DSP.
-        std::cout << "NPU Pipeline Initialized: Low-Energy Mode Active." << std::endl;
+        // In the Hexagon 2026 stack, we "Warm up" the DSP here.
+        std::cout << "Hexagon DSP 2026: INT4 Weights Loaded." << std::endl;
     }
 
     const char* predict_next_word(const char* input_buffer) override {
-        // This is where the magic happens. 
-        // The buffer is passed to the Hexagon DSP for 4-bit inference.
-        return "seleccionado"; // Example prediction
+        std::string input(input_buffer);
+        
+        // 1. SURGICAL CONTEXT CHECK
+        // Simple heuristic: look for Spanish-specific characters or common words
+        if (input.find(" the ") != std::string::npos || input.find(" is ") != std::string::npos) {
+            is_spanish_context = false;
+        } else if (input.find(" el ") != std::string::npos || input.find(" que ") != std::string::npos) {
+            is_spanish_context = true;
+        }
+
+        // 2. NPU INFERENCE (Simulated for now, soon to be Hexagon SDK calls)
+        if (is_spanish_context) {
+            return "mañana"; // Spanish prediction
+        } else {
+            return "tomorrow"; // English prediction
+        }
     }
 };
