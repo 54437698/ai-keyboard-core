@@ -2,59 +2,48 @@ package com.jv.ai_keyboard;
 
 import android.inputmethodservice.InputMethodService;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
-import java.util.List;
+import android.view.LayoutInflater;
+import android.widget.TextView;
+import android.util.Log;
 
 public class JointVentureInputService extends InputMethodService {
 
-    // Load the C++ "Silicon Brain"
+    // 1. THE BRIDGE: Connects to the C++ Engine (jv_npu_engine)
     static {
-        System.loadLibrary("npu_pipeline");
+        try {
+            System.loadLibrary("jv_npu_engine");
+            Log.d("JV_DEBUG", "C++ Engine Loaded Successfully");
+        } catch (UnsatisfiedLinkError e) {
+            Log.e("JV_DEBUG", "CRITICAL: Could not load jv_npu_engine: " + e.getMessage());
+        }
     }
 
-    // Native Handshakes
-    public native String getNPUPrediction(String context, String lang);
+    // 2. THE NATIVE METHODS: Must match C++ signatures exactly
+    public native String getNPUPrediction(String input);
     public native void initNPU(byte[] modelData);
 
-    private boolean isSpanish = false;
-
+    // 3. THE INTERFACE: Shows the "NPU ONLINE" Neon Bar
     @Override
     public View onCreateInputView() {
-        // Here we will inflate your master_layout.json later.
-        // For now, we return a placeholder to verify the service starts.
-        return super.onCreateInputView();
-    }
-
-    @Override
-    public void onStartInputView(EditorInfo info, boolean restarting) {
-        super.onStartInputView(info, restarting);
-        // Reset the NPU context when the user starts typing in a new field
-    }
-
-    /**
-     * The Language Switcher Logic
-     * Triggered by Long-Pressing Space (to be linked to UI later)
-     */
-    public void toggleLanguage() {
-        isSpanish = !isSpanish;
-        String currentLang = isSpanish ? "ES" : "EN";
+        // Inflate your custom Neon Prediction Bar
+        View layout = LayoutInflater.from(this).inflate(R.layout.prediction_toolbar, null);
         
-        // Notify the user or update the UI labels
-        android.widget.Toast.makeText(this, "Language: " + currentLang, android.widget.Toast.LENGTH_SHORT).show();
+        TextView statusText = layout.findViewById(R.id.prediction_text);
+        if (statusText != null) {
+            statusText.setText("SOVEREIGN NPU ONLINE");
+        }
+        
+        return layout;
     }
 
-    /**
-     * Core Typing Logic
-     */
-    public void handleCharacter(char code) {
-        InputConnection ic = getCurrentInputConnection();
-        if (ic != null) {
-            ic.commitText(String.valueOf(code), 1);
-            
-            // Trigger NPU Prediction in background
-            String prediction = getNPUPrediction(ic.getTextBeforeCursor(10, 0).toString(), 
-                                                isSpanish ? "es" : "en");
-        }
+    // 4. THE STARTUP: Where you can pass model data to the NPU
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.e("JV_DEBUG", "########################################");
+        Log.e("JV_DEBUG", "### THE SOVEREIGN BRAIN IS STARTING  ###");
+        Log.e("JV_DEBUG", "########################################");
+        
+        // Example: initNPU(null); // We will add real model data later
     }
 }
