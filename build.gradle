@@ -1,18 +1,31 @@
 buildscript {
-    repositories { google() ; mavenCentral() }
-    dependencies { classpath 'com.android.tools.build:gradle:8.1.0' }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.0'
+    }
+}
+
+// THIS MUST BE OUTSIDE BUILDSCRIPT
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 apply plugin: 'com.android.application'
 
 android {
     namespace 'com.jv.ai_keyboard'
-    compileSdk 34
+    compileSdk 33 // Lowered to 33 to kill that warning in your logs
 
     defaultConfig {
         applicationId "com.jv.ai_keyboard"
         minSdk 24
-        targetSdk 34
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -20,6 +33,15 @@ android {
             cmake {
                 cppFlags "-std=c++17"
             }
+        }
+    }
+
+    // This ensures Gradle finds your files in the root-flat structure
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
         }
     }
 
