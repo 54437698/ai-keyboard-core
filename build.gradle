@@ -1,0 +1,31 @@
+buildscript {
+    repositories { google() ; mavenCentral() }
+    dependencies { classpath 'com.android.tools.build:gradle:8.1.0' }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    namespace 'com.jv.ai_keyboard'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.jv.ai_keyboard"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+}
