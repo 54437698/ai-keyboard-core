@@ -55,11 +55,11 @@ public class JointVentureInputService extends InputMethodService {
         }
     }
 
-    // --- 5. NATIVE BRIDGE ---
+   // --- 5. NATIVE BRIDGE ---
     static {
-        System.loadLibrary("npu_pipeline"); // KEEP THIS - Matches your CMake
+        System.loadLibrary("npu_pipeline"); 
     }
 
-    public native void initNPU(byte[] modelData);
+    // We removed initNPU because it doesn't exist in our C++ yet!
     public native String getNPUPrediction(String context, String lang);
-}
+    }
