@@ -13,16 +13,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Setup Android NDK
+        id: setup-ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r25c
+          add-to-path: true
+
       - name: Validate JSON Layout
         run: |
-          # Ensuring our Number Row and Spanish mappings are valid
           cat ui/master_layout.json | python3 -m json.tool > /dev/null
           echo "✅ UI Layout is surgical."
 
       - name: Validate C++ Core
         run: |
-          # Checking our NPU headers and implementation for syntax errors
+          # We point g++ to the NDK sysroot so it finds jni.h
+          export CPLUS_INCLUDE_PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/android
+          
           g++ -xc++ -fsyntax-only core/ai_bridge.h
           g++ -xc++ -fsyntax-only core/npu_pipeline.cpp
           g++ -xc++ -fsyntax-only core/inference_bridge.cpp
           echo "✅ C++ Core is error-free."
+
+      - name: Build with Gradle
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
