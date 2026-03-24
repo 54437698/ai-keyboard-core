@@ -1,38 +1,38 @@
 #include <jni.h>
 #include <string>
+#include <android/log.h>
+
+// Debugging macro so we can see what's happening in Logcat
+#define LOG_TAG "JV_NPU_CORE"
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 extern "C" {
 
-// This name MUST match your Java package: com.jv.ai_keyboard
+/**
+ * IMPORTANT: The name below is mapped to:
+ * Package: com.jv.ai_keyboard
+ * Class: JointVentureInputService
+ * Function: getNPUPrediction
+ * Note: _1keyboard is how JNI handles the underscore in "ai_keyboard"
+ */
 JNIEXPORT jstring JNICALL
-Java_com_jv_ai_1keyboard_JointVentureInputService_getNPUPrediction(
-        JNIEnv* env,
-        jobject thiz,
-        jstring context,
-        jstring lang) {
-
-    // 1. High-Performance String Extraction
-    const char *nativeLang = env->GetStringUTFChars(lang, nullptr);
-    const char *nativeContext = env->GetStringUTFChars(context, nullptr);
+Java_com_jv_ai_1keyboard_JointVentureInputService_getNPUPrediction(JNIEnv *env, jobject thiz, jstring input) {
+    const char *nativeInput = env->GetStringUTFChars(input, 0);
     
-    std::string language = nativeLang;
-    std::string input = nativeContext;
-    std::string prediction;
-
-    // 2. The Silicon Brain Logic
-    // For now, simple bilingual toggling. 
-    // Later, we plug the 'input' into a real NPU model.
-    if (language == "spanish") {
-        prediction = "mañana"; 
-    } else {
-        prediction = "tomorrow";
-    }
-
-    // 3. Essential Memory Release (Prevents the 'Fatal' Leak)
-    env->ReleaseStringUTFChars(lang, nativeLang);
-    env->ReleaseStringUTFChars(context, nativeContext);
-
+    // Placeholder for actual NPU logic
+    std::string prediction = "Sovereign Ready"; 
+    
+    env->ReleaseStringUTFChars(input, nativeInput);
     return env->NewStringUTF(prediction.c_str());
+}
+
+/**
+ * Handles the NPU initialization call from Java
+ */
+JNIEXPORT void JNICALL
+Java_com_jv_ai_1keyboard_JointVentureInputService_initNPU(JNIEnv *env, jobject thiz, jbyteArray model_data) {
+    LOGE("NPU Pipeline Initializing...");
+    // Logic for loading .tflite or .pte models goes here
 }
 
 }
