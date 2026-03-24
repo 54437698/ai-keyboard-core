@@ -43,3 +43,24 @@ public:
         return result.c_str();
     }
 };
+
+#include <jni.h>
+
+// This must match your Java package and class name exactly
+extern "C" JNIEXPORT jstring JNICALL
+Java_bindings_Android_JointVentureInputService_predictNextWord(
+        JNIEnv* env,
+        jobject /* this */,
+        jstring input_jstr) {
+
+    // 1. Convert Java String to C++ string
+    const char* native_input = env->GetStringUTFChars(input_jstr, 0);
+
+    // 2. Call your high-performance Inference Engine
+    static InferenceBridge bridge; // Static so we don't reload the model every keystroke
+    const char* prediction = bridge.predict_next_word(native_input);
+
+    // 3. Clean up and return the result to Java
+    env->ReleaseStringUTFChars(input_jstr, native_input);
+    return env->NewStringUTF(prediction);
+}
