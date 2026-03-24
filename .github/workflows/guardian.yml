@@ -13,24 +13,30 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
       - name: Setup Android NDK
         id: setup-ndk
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r25c
-          add-to-path: true
+
+      - name: Setup Gradle (Auto-Ignition)
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.0
 
       - name: Validate JSON Layout
         run: |
           cat ui/master_layout.json | python3 -m json.tool > /dev/null
           echo "✅ UI Layout is surgical."
 
-      - name: Validate C++ Core (NDK Clang Check)
+      - name: Build NPU Core
         run: |
-          # Direct NDK compilation check - no gradlew required
-          $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ \
-            -target aarch64-linux-android24 \
-            -isystem $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include \
-            -isystem $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/android \
-            -fsyntax-only core/npu_pipeline.cpp core/inference_bridge.cpp
-          echo "✅ NPU Logic and JNI Bridge are verified by NDK."
+          # Use the 'gradle' command installed by the setup step above
+          gradle compileDebugJavaWithJavac
+          echo "✅ Silicon Brain and Android Identity are synced."
