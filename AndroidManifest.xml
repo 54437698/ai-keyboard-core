@@ -2,12 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jointventure.keyboard">
 
-    <uses-permission android:name="android.permission.INTERNET" /> <application
+    <uses-permission android:name="android.permission.INTERNET" /> 
+
+    <application
         android:label="JV-NPU-Keyboard"
-        android:extractNativeLibs="true"> <service
-            android:name=".JointVentureInputService"
+        android:extractNativeLibs="true"> 
+
+        <service
+            android:name="bindings.Android.JointVentureInputService"
             android:label="JV Spanish/NPU Keyboard"
-            android:permission="android.permission.BIND_INPUT_METHOD">
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
