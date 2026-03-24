@@ -1,0 +1,25 @@
+{
+  "keyboard_id": "jv_npu_v1",
+  "layouts": {
+    "english": {
+      "rows": [
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+        ["SHIFT", "z", "x", "c", "v", "b", "n", "m", "BACKSPACE"],
+        ["?123", "LANG_SWITCH", "SPACE", "ENTER"]
+      ]
+    },
+    "spanish": {
+      "rows": [
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l", "ñ"],
+        ["SHIFT", "z", "x", "c", "v", "b", "n", "m", "BACKSPACE"],
+        ["?123", "LANG_SWITCH", "SPACE", "ENTER"]
+      ]
+    }
+  },
+  "npu_config": {
+    "default_language": "english",
+    "auto_detect": true
+  }
+}
