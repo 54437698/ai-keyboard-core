@@ -1,79 +1,65 @@
-package com.jointventure.keyboard;
+package com.jv.ai_keyboard; // KEEP THIS - Matches your Manifest/Gradle
 
 import android.inputmethodservice.InputMethodService;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import com.jv.npu.ClipboardGuard; // Ensure this import matches your package
 
 public class JointVentureInputService extends InputMethodService {
 
-    private ClipboardGuard clipboardGuard;
-    private View mCandidateView;
+    private KeyboardLayoutParser parser;
+    private String currentLang = "english";
 
-    // --- 1. Lifecycle: Initialization ---
+    // --- 1. Lifecycle ---
     @Override
     public void onCreate() {
         super.onCreate();
-        // Initialize the guard so resetTimer() doesn't crash the service
-        clipboardGuard = new ClipboardGuard(this);
+        parser = new KeyboardLayoutParser(this, this);
     }
 
-    // --- 2. UI: The Prediction Toolbar (The Face) ---
+    // --- 2. The Keyboard Keys (Eyes & Hands) ---
+    @Override
+    public View onCreateInputView() {
+        // This uses the JSON Parser we built to show the keys
+        return parser.parseAndCreateView(currentLang);
+    }
+
+    // --- 3. The Prediction Toolbar (The Face) ---
     @Override
     public View onCreateCandidatesView() {
-        // Inflate the surgical toolbar we built in XML
-        mCandidateView = getLayoutInflater().inflate(R.layout.prediction_toolbar, null);
+        // Ensure you have prediction_toolbar.xml in res/layout/
+        View mCandidateView = getLayoutInflater().inflate(R.layout.prediction_toolbar, null);
         
-        // Setup Clipboard Button
-        View btnClipboard = mCandidateView.findViewById(R.id.btn_clipboard);
-        btnClipboard.setOnClickListener(v -> {
-            Log.d("JV_UI", "Clipboard Button Pressed - Manual Flush Triggered");
-            clipboardGuard.manualFlush(); // Added this for manual control
-        });
-
-        // Setup NPU Mic Button
-        View btnMic = mCandidateView.findViewById(R.id.btn_mic);
-        btnMic.setOnClickListener(v -> {
+        mCandidateView.findViewById(R.id.btn_mic).setOnClickListener(v -> {
             Log.d("JV_UI", "NPU Mic Pressed - Hexagon V79 Listening");
         });
 
         return mCandidateView;
     }
 
-    // --- 3. Input Logic: Triggers ---
     @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
         super.onStartInputView(info, restarting);
-        setCandidatesViewShown(true); // Always show our NPU toolbar
-        clipboardGuard.resetTimer();  // Reset the 20-min "Dead Man's Switch"
+        setCandidatesViewShown(true); 
     }
 
-    @Override
-    public void onStartInput(EditorInfo attribute, boolean restarting) {
-        super.onStartInput(attribute, restarting);
-        // "Joint Venture" logic: Reset NPU context for new fields here
+    // --- 4. Language & Typing Logic ---
+    public void toggleLanguage() {
+        currentLang = currentLang.equals("english") ? "spanish" : "english";
+        setInputView(onCreateInputView());
     }
 
-    @Override
-    public View onCreateInputView() {
-        // Eventually we inflate the custom JSON keyboard layout here
-        return super.onCreateInputView();
+    public void handleCharacter(char code) {
+        if (getCurrentInputConnection() != null) {
+            getCurrentInputConnection().commitText(String.valueOf(code), 1);
+        }
     }
 
-    // --- 4. CONSOLIDATED NPU NATIVE BRIDGE ---
+    // --- 5. NATIVE BRIDGE ---
     static {
-        // The Silicon Bridge to the C++ Core
-        System.loadLibrary("jv_npu_engine");
+        System.loadLibrary("npu_pipeline"); // KEEP THIS - Matches your CMake
     }
 
-    /**
-     * Initializes the Hexagon NPU with our Spanish/English weights.
-     */
-    public native void initNPUEngine(String modelPath);
-
-    /**
-     * Sends the current text buffer to the NPU and gets semantic predictions.
-     */
-    public native String[] getNPUPredictions(String input);
+    public native void initNPU(byte[] modelData);
+    public native String getNPUPrediction(String context, String lang);
 }
