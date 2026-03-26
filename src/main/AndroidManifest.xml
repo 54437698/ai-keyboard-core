@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jv.ai_keyboard">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
@@ -11,6 +10,9 @@
         android:supportsRtl="true"
         android:hasFragileUserData="true"
         android:allowClearUserData="true">
+
+        <uses-native-library android:name="libvndksupport.so" android:required="false"/>
+        <uses-native-library android:name="libOpenCL.so" android:required="false"/>
 
         <activity 
             android:name=".SettingsActivity"
@@ -27,7 +29,9 @@
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:theme="@style/Theme.JV_Keyboard" 
             android:exported="true"
-            android:directBootAware="true"> <intent-filter>
+            android:directBootAware="true"> 
+            
+            <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
 
@@ -39,5 +43,4 @@
         </service>
 
     </application>
-
 </manifest>
