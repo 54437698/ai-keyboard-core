@@ -4,15 +4,17 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+        // This stays here - it's the tool that builds the app
         classpath 'com.android.tools.build:gradle:8.1.0'
     }
 }
 
-// THIS MUST BE OUTSIDE BUILDSCRIPT
 allprojects {
     repositories {
         google()
         mavenCentral()
+        // This is the "Secret Sauce" repository for LiteRT
+        maven { url "https://maven.google.com" }
     }
 }
 
@@ -20,34 +22,39 @@ apply plugin: 'com.android.application'
 
 android {
     namespace 'com.jv.ai_keyboard'
-    compileSdk 33 // Lowered to 33 to kill that warning in your logs
+    compileSdk 34 // Bumped to 34 for Android 14/15 compatibility
 
     defaultConfig {
         applicationId "com.jv.ai_keyboard"
         minSdk 24
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
-        externalNativeBuild {
-            cmake {
-                cppFlags "-std=c++17"
-            }
+        // This tells the S25 Ultra which NPU "languages" we speak
+        ndk {
+            abiFilters 'arm64-v8a' 
         }
     }
 
-    // This ensures Gradle finds your files in the root-flat structure
+    // Optimization: Don't compress the brain file! 
+    // If it's compressed, the NPU can't read it fast.
+    aaptOptions {
+        noCompress "litertlm", "tflite"
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'src/main/AndroidManifest.xml'
             java.srcDirs = ['src/main/java']
             res.srcDirs = ['src/main/res']
+            // Make sure your brain file goes here!
+            assets.srcDirs = ['src/main/assets'] 
         }
     }
+}
 
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
-    }
+// THIS is where the AI library actually lives
+dependencies {
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.9.0-beta")
 }
