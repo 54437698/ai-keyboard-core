@@ -9,20 +9,20 @@
         android:icon="@drawable/ic_launcher_foreground"
         android:supportsRtl="true">
 
-        <service
-            android:name="com.jv.ai_keyboard.JointVentureInputService"
-            android:label="JV NPU Keyboard"
-            android:permission="android.permission.BIND_INPUT_METHOD"
-            android:exported="true">
-            
-            <intent-filter>
-                <action android:name="android.view.InputMethod" />
-            </intent-filter>
+       <service
+    android:name="com.jv.ai_keyboard.JointVentureInputService"
+    android:label="JV NPU Keyboard"
+    android:permission="android.permission.BIND_INPUT_METHOD"
+    android:exported="true">
+    
+    <intent-filter>
+        <action android:name="android.view.inputmethod.InputMethod" />
+    </intent-filter>
 
-            <meta-data
-                android:name="android.view.im"
-                android:resource="@xml/method" />
-        </service>
+    <meta-data
+        android:name="android.view.im"
+        android:resource="@xml/method" />
+</service>
 
     </application>
 </manifest>
