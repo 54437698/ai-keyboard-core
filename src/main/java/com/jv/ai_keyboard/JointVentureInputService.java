@@ -4,42 +4,50 @@ import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.view.View;
-import android.graphics.Color;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.view.inputmethod.InputConnection; // ADD THIS for typing
 import android.util.Log;
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
-   @Override
+    @Override
     public View onCreateInputView() {
-        Log.d("JV_DEBUG", "onCreateInputView: Forcing Focusable Container");
+        Log.d("JV_DEBUG", "onCreateInputView: Loading QWERTY Layout");
 
-        // 1. Create the container
-        LinearLayout container = new LinearLayout(this);
-        container.setBackgroundColor(Color.MAGENTA); // KEEP THE PINK SO WE CAN SEE IT
+        // 1. Inflate the layout from res/layout/input.xml
+        // This keeps the 300dp height we fought so hard for!
+        KeyboardView kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
         
-        // 2. THE FORCE: Set a hard minimum height in pixels (approx 350dp)
-        container.setMinimumHeight(900); 
+        // 2. Load the actual keys from res/xml/qwerty.xml
+        Keyboard k = new Keyboard(this, R.xml.qwerty);
+        
+        // 3. Connect them
+        kv.setKeyboard(k);
+        kv.setOnKeyboardActionListener(this);
 
-        // 3. THE FIX: Android 16 requires the view to be "Interactive"
-        container.setClickable(true);
-        container.setFocusable(true);
-        container.setFocusableInTouchMode(true); // Tells the OS we can receive touches
+        // 4. Force Focus (Keeping your victory fix)
+        kv.setFocusable(true);
+        kv.setFocusableInTouchMode(true);
 
-        // 4. Content
-        TextView tv = new TextView(this);
-        tv.setText("JV NPU: SYSTEM ESTABLISHED");
-        tv.setTextColor(Color.WHITE);
-        tv.setTextSize(18);
-        tv.setPadding(40, 40, 40, 40);
-        container.addView(tv);
-
-        return container;
+        return kv;
     }
 
-    // Empty Mandatory Methods to make the compiler happy
-    @Override public void onKey(int primaryCode, int[] keyCodes) {}
+    @Override
+    public void onKey(int primaryCode, int[] keyCodes) {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return;
+
+        // This makes the keys actually TYPE on your phone
+        switch (primaryCode) {
+            case Keyboard.KEYCODE_DELETE:
+                ic.deleteSurroundingText(1, 0);
+                break;
+            default:
+                char code = (char) primaryCode;
+                ic.commitText(String.valueOf(code), 1);
+        }
+    }
+
+    // Keep these empty so the compiler is happy
     @Override public void onPress(int primaryCode) {}
     @Override public void onRelease(int primaryCode) {}
     @Override public void onText(CharSequence text) {}
