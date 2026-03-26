@@ -1,11 +1,12 @@
+// --- THE TOOLS ---
 buildscript {
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        // This stays here - it's the tool that builds the app
-        classpath 'com.android.tools.build:gradle:8.1.0'
+        // Updated to 8.2.0 to handle Java 17/21 (Major Version 65)
+        classpath 'com.android.tools.build:gradle:8.2.0'
     }
 }
 
@@ -13,16 +14,16 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        // This is the "Secret Sauce" repository for LiteRT
         maven { url "https://maven.google.com" }
     }
 }
 
 apply plugin: 'com.android.application'
 
+// --- THE APP BRAIN ---
 android {
     namespace 'com.jv.ai_keyboard'
-    compileSdk 34 // Bumped to 34 for Android 14/15 compatibility
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.jv.ai_keyboard"
@@ -30,15 +31,20 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
+    }
 
-        // This tells the S25 Ultra which NPU "languages" we speak
-        ndk {
-            abiFilters 'arm64-v8a' 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 
     // Optimization: Don't compress the brain file! 
-    // If it's compressed, the NPU can't read it fast.
     aaptOptions {
         noCompress "litertlm", "tflite"
     }
@@ -48,13 +54,12 @@ android {
             manifest.srcFile 'src/main/AndroidManifest.xml'
             java.srcDirs = ['src/main/java']
             res.srcDirs = ['src/main/res']
-            // Make sure your brain file goes here!
             assets.srcDirs = ['src/main/assets'] 
         }
     }
-}
+} // <--- THIS is the "Main Exit" for the android block. 
 
-// THIS is where the AI library actually lives
+// --- THE LIBRARIES ---
 dependencies {
     implementation("com.google.ai.edge.litertlm:litertlm-android:0.9.0-beta")
 }
