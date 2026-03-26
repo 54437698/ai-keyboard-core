@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jv.ai_keyboard"> <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    package="com.jv.ai_keyboard">
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:label="Joint Venture Keyboard"
@@ -18,15 +20,13 @@
         </activity>
         
         <service
-            android:name="com.jv.ai_keyboard.JointVentureInputService"
+            android:name=".JointVentureInputService"
             android:label="JV NPU Keyboard"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true">
-            
             <intent-filter>
                 <action android:name="android.view.inputmethod.InputMethod" />
             </intent-filter>
-
             <meta-data
                 android:name="android.view.im"
                 android:resource="@xml/method" />
