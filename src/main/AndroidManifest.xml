@@ -26,12 +26,17 @@
             android:name=".JointVentureInputService"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:theme="@style/Theme.JV_Keyboard" 
-            android:exported="true">
-            <intent-filter>
+            android:exported="true"
+            android:directBootAware="true"> <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
+
             <meta-data android:name="android.view.im" android:resource="@xml/method" />
-        </service>
+            
+            <meta-data 
+                android:name="android.inputmethodservice.is_auxiliary_ime" 
+                android:value="false" />
+        </service
 
     </application>
 
