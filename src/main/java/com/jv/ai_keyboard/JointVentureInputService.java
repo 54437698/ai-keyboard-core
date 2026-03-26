@@ -26,13 +26,15 @@ public class JointVentureInputService extends InputMethodService
 
     // 3. THE INTERFACE: Loads the QWERTY keys
     @Override
-    public View onCreateInputView() {
-        KeyboardView kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
-        Keyboard keyboard = new Keyboard(this, R.xml.qwerty);
-        kv.setKeyboard(keyboard);
-        kv.setOnKeyboardActionListener(this); 
-        return kv;
-    }
+    @Override
+public View onCreateInputView() {
+    // USE THIS: 'this' ensures the context matches the package ID 7f
+    KeyboardView kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
+    
+    Keyboard k = new Keyboard(this, R.xml.qwerty);
+    kv.setKeyboard(k);
+    return kv;
+}
 
     // 4. THE STARTUP
     @Override
