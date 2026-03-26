@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.application' version '8.2.0'
+    id 'com.android.application' version '8.2.2'
     id 'org.jetbrains.kotlin.android' version '1.9.22'
 }
 
@@ -24,9 +24,13 @@ android {
         jvmTarget = "21"
     }
 
+    // Merged: Handling both JNI libs and the META-INF jlink fix
     packagingOptions {
         jniLibs {
             useLegacyPackaging = true
+        }
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
 
