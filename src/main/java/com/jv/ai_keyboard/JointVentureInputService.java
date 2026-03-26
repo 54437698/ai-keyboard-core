@@ -88,4 +88,21 @@ public class JointVentureInputService extends InputMethodService
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection ic = getCurrentInputConnection();
         if (ic != null) {
-            if (primaryCode == Keyboard.KEYCODE_
+            if (primaryCode == Keyboard.KEYCODE_DELETE) {
+                ic.deleteSurroundingText(1, 0);
+            } else {
+                char code = (char) primaryCode;
+                ic.commitText(String.valueOf(code), 1);
+            }
+        }
+    }
+
+    // MANDATORY METHODS
+    @Override public void onPress(int primaryCode) {}
+    @Override public void onRelease(int primaryCode) {}
+    @Override public void onText(CharSequence text) {}
+    @Override public void swipeLeft() {}
+    @Override public void swipeRight() {}
+    @Override public void swipeDown() {}
+    @Override public void swipeUp() {}
+}
