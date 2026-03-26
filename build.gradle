@@ -1,3 +1,11 @@
+// 1. THE PLUGINS (The "Tools" must come first)
+plugins {
+    id 'com.android.application' version '8.2.0' apply true
+    // If you plan on using Kotlin for the AI logic:
+    id 'org.jetbrains.kotlin.android' version '1.9.22' apply true
+}
+
+// 2. THE APP CONFIGURATION
 android {
     namespace 'com.jv.ai_keyboard'
     compileSdk 34
@@ -10,13 +18,11 @@ android {
         versionName "1.0"
     }
 
-    // UPDATED: Syncing the app to Java 21 (Major Version 65)
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
     }
 
-    // If you use Kotlin (highly recommended for LiteRT-LM), this keeps it synced
     kotlinOptions {
         jvmTarget = "21"
     }
@@ -39,4 +45,15 @@ android {
             assets.srcDirs = ['src/main/assets'] 
         }
     }
+}
+
+// 3. THE REPOSITORIES
+repositories {
+    google()
+    mavenCentral()
+}
+
+// 4. THE LIBRARIES
+dependencies {
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.9.0-beta")
 }
