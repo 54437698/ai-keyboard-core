@@ -36,7 +36,7 @@
             <meta-data 
                 android:name="android.inputmethodservice.is_auxiliary_ime" 
                 android:value="false" />
-        </service
+        </service>
 
     </application>
 
