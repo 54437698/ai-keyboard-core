@@ -10,7 +10,7 @@
         android:supportsRtl="true">
 
         <service
-            android:name="com.jv.ai_keyboard.JointVentureInputService"
+            android:name=".JointVentureInputService"
             android:label="JV NPU Keyboard"
             android:permission="android.permission.BIND_INPUT_METHOD"
             android:exported="true">
