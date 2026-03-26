@@ -1,11 +1,8 @@
-// 1. THE PLUGINS (The "Tools" must come first)
 plugins {
-    id 'com.android.application' version '8.2.0' apply true
-    // If you plan on using Kotlin for the AI logic:
-    id 'org.jetbrains.kotlin.android' version '1.9.22' apply true
+    id 'com.android.application' version '8.2.0'
+    id 'org.jetbrains.kotlin.android' version '1.9.22'
 }
 
-// 2. THE APP CONFIGURATION
 android {
     namespace 'com.jv.ai_keyboard'
     compileSdk 34
@@ -47,13 +44,6 @@ android {
     }
 }
 
-// 3. THE REPOSITORIES
-repositories {
-    google()
-    mavenCentral()
-}
-
-// 4. THE LIBRARIES
 dependencies {
     implementation("com.google.ai.edge.litertlm:litertlm-android:0.9.0-beta")
 }
