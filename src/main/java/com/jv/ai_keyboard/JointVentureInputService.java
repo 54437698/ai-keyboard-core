@@ -4,9 +4,9 @@ import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.view.View;
+import android.view.inputmethod.InputConnection;
 import android.util.Log;
 
-// 🚩 Added KeyboardView.OnKeyboardActionListener to the 'implements' list
 public class JointVentureInputService extends InputMethodService 
         implements KeyboardView.OnKeyboardActionListener {
 
@@ -27,18 +27,10 @@ public class JointVentureInputService extends InputMethodService
     // 3. THE INTERFACE: Loads the QWERTY keys
     @Override
     public View onCreateInputView() {
-        // Load the "Skin" (the View)
         KeyboardView kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
-        
-        // Load the "Map" (the XML keys)
         Keyboard keyboard = new Keyboard(this, R.xml.qwerty);
-        
-        // Put the Map onto the Skin
         kv.setKeyboard(keyboard);
-        
-        // 🚩 Link the listener so key presses actually do something
         kv.setOnKeyboardActionListener(this); 
-        
         return kv;
     }
 
@@ -51,15 +43,22 @@ public class JointVentureInputService extends InputMethodService
         Log.e("JV_DEBUG", "########################################");
     }
 
-    // --- MANDATORY KEYBOARD LISTENER METHODS ---
-    // These must exist because we 'implements KeyboardView.OnKeyboardActionListener'
-    
+    // 5. THE NERVOUS SYSTEM: Sending characters to the screen
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
-        // This is where the magic happens! 
-        // We'll tell it to send characters to the input field here next.
+        InputConnection ic = getCurrentInputConnection();
+        
+        if (ic != null) {
+            if (primaryCode == Keyboard.KEYCODE_DELETE) {
+                ic.deleteSurroundingText(1, 0);
+            } else {
+                char code = (char) primaryCode;
+                ic.commitText(String.valueOf(code), 1);
+            }
+        }
     }
 
+    // MANDATORY METHODS: Required to stay here to keep Android happy
     @Override public void onPress(int primaryCode) {}
     @Override public void onRelease(int primaryCode) {}
     @Override public void onText(CharSequence text) {}
