@@ -1,0 +1,66 @@
+package com.jv.ai_keyboard;
+
+import android.content.Context;
+import android.util.Log;
+import com.google.ai.edge.litertlm.Backend;
+import com.google.ai.edge.litertlm.Conversation;
+import com.google.ai.edge.litertlm.Engine;
+import com.google.ai.edge.litertlm.EngineConfig;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
+public class JvNativeEngine {
+    private Engine engine;
+    private Conversation conversation;
+    private boolean isReady = false;
+
+    public void initialize(Context context) {
+        new Thread(() -> {
+            try {
+                // 1. Move the brain from Assets to Internal Storage (LiteRT-LM needs a file path)
+                String modelPath = copyAssetToInternal(context, "gemma.litertlm");
+                
+                // 2. Configure the Engine for the S25 Ultra NPU
+                EngineConfig config = new EngineConfig(
+                    modelPath,
+                    Backend.NPU(context.getApplicationInfo().nativeLibraryDir)
+                );
+
+                engine = new Engine(config);
+                engine.initialize(); // This takes a few seconds—NPU is waking up
+                
+                // 3. Start a new "Session"
+                conversation = engine.createConversation();
+                isReady = true;
+                Log.d("JV_DEBUG", "Sovereign NPU Brain Online");
+            } catch (Exception e) {
+                Log.e("JV_DEBUG", "Brain Transplant Failed: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    public String getPrediction(String input) {
+        if (!isReady) return "Waking up...";
+        try {
+            // This is the "Magic" - it asks the LLM to complete your sentence
+            return conversation.sendMessage("Complete this sentence: " + input);
+        } catch (Exception e) {
+            return "...";
+        }
+    }
+
+    // Helper to move the file out of the APK so the NPU can see it
+    private String copyAssetToInternal(Context context, String filename) throws Exception {
+        File file = new File(context.getFilesDir(), filename);
+        if (!file.exists()) {
+            InputStream is = context.getAssets().open(filename);
+            FileOutputStream fos = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = is.read(buffer)) != -1) fos.write(buffer, 0, read);
+            fos.close(); is.close();
+        }
+        return file.getAbsolutePath();
+    }
+}
