@@ -8,7 +8,9 @@
         android:label="Joint Venture Keyboard"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher_foreground"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:hasFragileUserData="true"
+        android:allowClearUserData="true">
 
         <activity 
             android:name=".SettingsActivity"
@@ -16,21 +18,21 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         
-        <service
+        <service 
             android:name=".JointVentureInputService"
-            android:label="JV NPU Keyboard"
             android:permission="android.permission.BIND_INPUT_METHOD"
+            android:theme="@style/Theme.JV_Keyboard" 
             android:exported="true">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>
-            <meta-data
-                android:name="android.view.im"
-                android:resource="@xml/method" />
+            <meta-data android:name="android.view.im" android:resource="@xml/method" />
         </service>
 
     </application>
+
 </manifest>
