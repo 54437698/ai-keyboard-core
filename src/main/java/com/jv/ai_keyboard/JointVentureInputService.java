@@ -11,11 +11,19 @@ import android.util.Log;
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
     // --- CLASS VARIABLES (The Brain's Memory) ---
+    private JvNativeEngine npuEngine;
     private KeyboardView kv;
     private Keyboard k;
     private View mCandidateView;
     private TextView suggestionText; // This is what the NPU will talk to
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        npuEngine = new JvNativeEngine();
+        Log.d("JV_DEBUG", "NPU Engine Bridge Initialized");
+    }
+    
     @Override
     public View onCreateInputView() {
         Log.d("JV_DEBUG", "onCreateInputView: Loading QWERTY Layout");
