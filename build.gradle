@@ -1,26 +1,3 @@
-// --- THE TOOLS ---
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        // Updated to 8.2.0 to handle Java 17/21 (Major Version 65)
-        classpath 'com.android.tools.build:gradle:8.2.0'
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://maven.google.com" }
-    }
-}
-
-apply plugin: 'com.android.application'
-
-// --- THE APP BRAIN ---
 android {
     namespace 'com.jv.ai_keyboard'
     compileSdk 34
@@ -33,9 +10,15 @@ android {
         versionName "1.0"
     }
 
+    // UPDATED: Syncing the app to Java 21 (Major Version 65)
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    // If you use Kotlin (highly recommended for LiteRT-LM), this keeps it synced
+    kotlinOptions {
+        jvmTarget = "21"
     }
 
     packagingOptions {
@@ -44,7 +27,6 @@ android {
         }
     }
 
-    // Optimization: Don't compress the brain file! 
     aaptOptions {
         noCompress "litertlm", "tflite"
     }
@@ -57,9 +39,4 @@ android {
             assets.srcDirs = ['src/main/assets'] 
         }
     }
-} // <--- THIS is the "Main Exit" for the android block. 
-
-// --- THE LIBRARIES ---
-dependencies {
-    implementation("com.google.ai.edge.litertlm:litertlm-android:0.9.0-beta")
 }
