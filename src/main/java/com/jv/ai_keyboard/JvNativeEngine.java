@@ -1,23 +1,17 @@
 package com.jv.ai_keyboard;
 
-import android.inputmethodservice.InputMethodService;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
+import android.content.Context;
 
-public class JointVentureInputService extends InputMethodService {
-    private JvNativeEngine npuEngine;
+public class JvNativeEngine {
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        npuEngine = new JvNativeEngine();
-        // We will call the setup here - matching the JvNativeEngine class
-        npuEngine.setup(this); 
+    // 1. This matches your "npuEngine.initialize(this)" call
+    public void initialize(Context context) {
+        // We will add the LiteRT-LM loading logic here later
     }
 
-    @Override
-    public View onCreateInputView() {
-        // Return a dummy view for now to get the green tick
-        return new View(this);
+    // 2. This matches your "npuEngine.getPrediction(inputContext)" call
+    public String getPrediction(String context) {
+        // For now, return a placeholder so it compiles
+        return "AI Ready"; 
     }
 }
