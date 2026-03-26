@@ -25,16 +25,37 @@ public class JointVentureInputService extends InputMethodService
     public native void initNPU(byte[] modelData);
 
     // 3. THE INTERFACE: Loads the QWERTY keys
+    // 3. THE INTERFACE: Loads the QWERTY keys
     @Override
-    @Override
-public View onCreateInputView() {
-    // USE THIS: 'this' ensures the context matches the package ID 7f
-    KeyboardView kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
-    
-    Keyboard k = new Keyboard(this, R.xml.qwerty);
-    kv.setKeyboard(k);
-    return kv;
-}
+    public View onCreateInputView() {
+        Log.d("JV_DEBUG", "Attempting to inflate Input View...");
+        try {
+            // Force inflate using the local layout inflater
+            View v = getLayoutInflater().inflate(R.layout.input, null);
+            
+            // Debug check: If we got here, the 0x7f error might be resolved
+            if (v instanceof KeyboardView) {
+                KeyboardView kv = (KeyboardView) v;
+                Keyboard k = new Keyboard(this, R.xml.qwerty);
+                kv.setKeyboard(k);
+                kv.setOnKeyboardActionListener(this);
+                return kv;
+            }
+            return v;
+        } catch (Exception e) {
+            Log.e("JV_DEBUG", "Inflation Failed: " + e.getMessage());
+            
+            // EMERGENCY FALLBACK: The Pink Test
+            // If the XML fails, this PROVES the 0x7f Resource ID is the culprit
+            android.widget.LinearLayout fallback = new android.widget.LinearLayout(this);
+            fallback.setBackgroundColor(android.graphics.Color.MAGENTA);
+            android.widget.TextView tv = new android.widget.TextView(this);
+            tv.setText("JV NPU CORE: XML INFLATION ERROR");
+            tv.setTextColor(android.graphics.Color.WHITE);
+            fallback.addView(tv);
+            return fallback;
+        }
+    }
 
     // 4. THE STARTUP
     @Override
