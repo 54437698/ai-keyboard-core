@@ -5,56 +5,43 @@ import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
-import android.widget.TextView; // ADDED for the Candidate Bar
+import android.widget.TextView;
 import android.util.Log;
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
-    // --- CLASS VARIABLES (The Brain's Memory) ---
+    // --- CLASS VARIABLES ---
     private JvNativeEngine npuEngine;
     private KeyboardView kv;
     private Keyboard k;
     private View mCandidateView;
-    private TextView suggestionText; // This is what the NPU will talk to
+    private TextView suggestionText;
 
     @Override
     public void onCreate() {
         super.onCreate();
         npuEngine = new JvNativeEngine();
-        Log.d("JV_DEBUG", "NPU Engine Bridge Initialized");
+        npuEngine.initialize(this); 
+        Log.d("JV_DEBUG", "Sovereign LiteRT-LM Engine Initialized");
     }
-    
+
     @Override
     public View onCreateInputView() {
         Log.d("JV_DEBUG", "onCreateInputView: Loading QWERTY Layout");
-
-        // 1. Inflate and assign to our class variable 'kv'
         kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
-        
-        // 2. Load the keys into 'k'
         k = new Keyboard(this, R.xml.qwerty);
-        
-        // 3. Connect them
         kv.setKeyboard(k);
         kv.setOnKeyboardActionListener(this);
-
-        // 4. Force Focus (Android 16 Fix)
         kv.setFocusable(true);
         kv.setFocusableInTouchMode(true);
-
         return kv;
     }
 
     @Override
     public View onCreateCandidatesView() {
         Log.d("JV_DEBUG", "onCreateCandidatesView: Initializing Ribbon");
-        
-        // 1. Inflate the ribbon and store it in 'mCandidateView'
         mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
-        
-        // 2. Grab the TextView inside so we can change the text later
         suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
-        
         setCandidatesViewShown(true); 
         return mCandidateView;
     }
@@ -68,17 +55,28 @@ public class JointVentureInputService extends InputMethodService implements Keyb
             case Keyboard.KEYCODE_DELETE:
                 ic.deleteSurroundingText(1, 0);
                 break;
+
             default:
                 char code = (char) primaryCode;
                 ic.commitText(String.valueOf(code), 1);
                 
-                // --- NPU HANDSHAKE PREP ---
-                // Every time you type, we could update the bar:
-                if (suggestionText != null) {
-                    suggestionText.setText("NPU Thinking: " + code);
+                // --- THE NPU HANDSHAKE ---
+                if (suggestionText != null && npuEngine != null) {
+                    CharSequence currentText = ic.getTextBeforeCursor(20, 0);
+                    String inputContext = (currentText != null) ? currentText.toString() : "";
+
+                    new Thread(() -> {
+                        String prediction = npuEngine.getPrediction(inputContext);
+                        suggestionText.post(() -> {
+                            if (prediction != null && !prediction.isEmpty()) {
+                                suggestionText.setText(prediction);
+                            }
+                        });
+                    }).start();
                 }
-        }
-    }
+                break; 
+        } // This closes the switch
+    } // This closes the onKey method
 
     // --- MANDATORY OVERRIDES ---
     @Override public void onPress(int primaryCode) {}
