@@ -1,12 +1,23 @@
 package com.jv.ai_keyboard;
 
-public class JvNativeEngine {
-    static {
-        // This loads your "jv_npu_engine.so" file from the JNI folder
-        System.loadLibrary("jv_npu_engine");
+import android.inputmethodservice.InputMethodService;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+
+public class JointVentureInputService extends InputMethodService {
+    private JvNativeEngine npuEngine;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        npuEngine = new JvNativeEngine();
+        // We will call the setup here - matching the JvNativeEngine class
+        npuEngine.setup(this); 
     }
 
-    // These are the "Direct Lines" to your C++ code
-    public native String getPrediction(String currentText);
-    public native void initEngine(byte[] modelData);
+    @Override
+    public View onCreateInputView() {
+        // Return a dummy view for now to get the green tick
+        return new View(this);
+    }
 }
