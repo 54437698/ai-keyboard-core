@@ -56,11 +56,14 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
-        super.onStartInputView(info, restarting);
-        setCandidatesViewShown(true); 
-        if (suggestionText != null) {
-            suggestionText.setText("Jv-NPU Active | v" + BuildConfig.BUILD_VERSION); 
-            suggestionText.setVisibility(View.VISIBLE);
+    super.onStartInputView(info, restarting);
+    setCandidatesViewShown(true); 
+    
+    if (suggestionText != null) {
+        // HARD-WIRE TEST: This should appear immediately on your S25
+        suggestionText.setText("Sovereign NPU: Standing By..."); 
+        suggestionText.setVisibility(View.VISIBLE);
+        Log.d("JV_DEBUG", "Preview Bar Hard-Wired to Visible");
         }
     }
 
