@@ -11,8 +11,22 @@ android {
         applicationId "com.jv.ai_keyboard"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        
+        // --- ALPHA VERSIONING LOGIC START ---
+        // Catch the number from GitHub YAML (-PbuildNumber)
+        def buildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "0"
+        
+        versionCode buildNum.toInteger()
+        versionName "1.1.${buildNum}-alpha"
+
+        // This creates the constant for your Java code
+        buildConfigField "String", "BUILD_VERSION", "\"1.1.${buildNum}-alpha\""
+        // --- ALPHA VERSIONING LOGIC END ---
+    }
+
+    // Required to make the BUILD_VERSION accessible in Java
+    buildFeatures {
+        buildConfig = true
     }
 
     compileOptions {
@@ -24,7 +38,6 @@ android {
         jvmTarget = "21"
     }
 
-    // Merged: Handling both JNI libs and the META-INF jlink fix
     packagingOptions {
         jniLibs {
             useLegacyPackaging = true
