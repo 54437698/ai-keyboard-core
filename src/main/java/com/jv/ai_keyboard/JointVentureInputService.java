@@ -25,12 +25,10 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     @Override
     public void onCreate() {
-    super.onCreate();
-    npuEngine = new JvNativeEngine();
-    npuEngine.initialize(this); 
-    // ADD THIS LINE BELOW:
-    setCandidatesViewShown(true);
-    Log.d("JV_DEBUG", "Sovereign Alpha " + BuildConfig.BUILD_VERSION + " Initialized");
+        super.onCreate();
+        npuEngine = new JvNativeEngine();
+        npuEngine.initialize(this); 
+        Log.d("JV_DEBUG", "Sovereign Alpha " + BuildConfig.BUILD_VERSION + " Initialized");
     }
 
     @Override
@@ -48,7 +46,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     public View onCreateCandidatesView() {
         mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
         suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
-        setCandidatesViewShown(true); 
         return mCandidateView;
     }
 
@@ -59,14 +56,12 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
-    super.onStartInputView(info, restarting);
-    setCandidatesViewShown(true); 
-    
-    if (suggestionText != null) {
-        // HARD-WIRE TEST: This should appear immediately on your S25
-        suggestionText.setText("Sovereign NPU: Standing By..."); 
-        suggestionText.setVisibility(View.VISIBLE);
-        Log.d("JV_DEBUG", "Preview Bar Hard-Wired to Visible");
+        super.onStartInputView(info, restarting);
+        setCandidatesViewShown(true); 
+        
+        if (suggestionText != null) {
+            suggestionText.setText("Sovereign NPU: Standing By..."); 
+            suggestionText.setVisibility(View.VISIBLE);
         }
     }
 
