@@ -26,7 +26,7 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         super.onCreate();
         npuEngine = new JvNativeEngine();
         npuEngine.initialize(this); 
-        Log.d("JV_DEBUG", "Sovereign LiteRT-LM Engine Initialized");
+        Log.d("JV_DEBUG", "Sovereign Engine Initialized");
     }
 
     @Override
@@ -43,7 +43,7 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
         suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
         
-        // This sets the Ribbon height to 46dp manually so the build won't fail
+        // Use density-independent pixels (46dp) to avoid R.dimen errors
         float density = getResources().getDisplayMetrics().density;
         int heightInPixels = (int) (46 * density); 
         
@@ -81,7 +81,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 if (k.getXmlLayoutResId() == R.xml.qwerty) {
                     k = new Keyboard(this, R.xml.symbols); 
                 } else {
-                    k = new Keyboard(this, R.xml.symbols); // Ensure fallback
                     k = new Keyboard(this, R.xml.qwerty);
                 }
                 kv.setKeyboard(k);
