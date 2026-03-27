@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="50dp"
+    android:orientation="horizontal"
+    android:background="#1A1A1A"
+    android:gravity="center_vertical">
 
-    <android.inputmethodservice.KeyboardView
-        android:id="@+id/keyboard"
+    <TextView
+        android:id="@+id/suggestion_1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:keyBackground="@drawable/key_bg"
-        android:keyTextColor="#FFFFFF"
-        android:labelTextSize="18sp"
-        android:keyTextSize="22sp" />
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:gravity="center_vertical"
+        android:text="Jv-NPU Active..."
+        android:textColor="#00FFCC"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
 </LinearLayout>
