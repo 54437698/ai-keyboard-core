@@ -50,7 +50,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         return mCandidateView;
     }
 
-    @Override
     public boolean onEvaluateCandidatesViewShown() {
         return true; 
     }
