@@ -1,6 +1,5 @@
 package com.jv.ai_keyboard;
 
-import com.jv.ai_keyboard.BuildConfig;
 import android.view.inputmethod.EditorInfo; 
 import android.view.inputmethod.InputConnection;
 import android.inputmethodservice.InputMethodService;
@@ -14,6 +13,7 @@ import android.os.Vibrator;
 import android.content.Context;   
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
+    // Keep all the variables and methods exactly as they were in #176
 
     private KeyboardView kv;
     private Keyboard qwertyKeyboard; 
