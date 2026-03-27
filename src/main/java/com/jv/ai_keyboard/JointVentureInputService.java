@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.KeyEvent; 
 import android.widget.TextView;
 import android.util.Log;
+import android.os.Vibrator;      // Moved to top
+import android.content.Context;   // Moved to top
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
@@ -69,11 +71,11 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 k.setShifted(isCaps);
                 kv.invalidateAllKeys();
                 break;
-            case 10: // Enter Key
+            case 10: 
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
                 break;
-            case -2: // Layout Toggle
+            case -2: 
                 if (isSymbols) {
                     k = new Keyboard(this, R.xml.qwerty);
                     isSymbols = false;
@@ -84,10 +86,10 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 kv.setKeyboard(k);
                 kv.invalidateAllKeys();
                 break;
-            case 999: // G-Button AI Pivot
+            case 999: 
                 handlePrediction(ic);
                 break;
-            case 32: // Space
+            case 32: 
                 ic.commitText(" ", 1);
                 handlePrediction(ic);
                 break;
@@ -116,18 +118,4 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     }
 
     @Override 
-    public void onPress(int primaryCode) {
-        if (primaryCode == 999 || primaryCode == -2) {
-            kv.setPreviewEnabled(false);
-        } else {
-            kv.setPreviewEnabled(true);
-        }
-    }
-
-    @Override public void onRelease(int primaryCode) {}
-    @Override public void onText(CharSequence text) {}
-    @Override public void swipeLeft() {}
-    @Override public void swipeRight() {}
-    @Override public void swipeDown() {}
-    @Override public void swipeUp() {}
-}
+    public void onPress(int primaryCode)
