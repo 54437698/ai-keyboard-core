@@ -7,14 +7,12 @@
     android:gravity="center_vertical">
 
     <TextView
-        android:id="@+id/suggestion_1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingLeft="16dp"
-        android:gravity="center_vertical"
-        android:text="Jv-NPU Active..."
-        android:textColor="#00FFCC"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+    android:id="@+id/jv_candidate_text"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:text="Jv-NPU Active..." 
+    android:textColor="#00FFCC"
+    android:textSize="16sp"
+    android:textStyle="bold" />
 
 </LinearLayout>
