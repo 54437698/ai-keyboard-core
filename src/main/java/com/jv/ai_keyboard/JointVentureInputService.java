@@ -1,5 +1,7 @@
 package com.jv.ai_keyboard;
 
+import android.widget.FrameLayout;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo; // CRITICAL: Fixes onStartInputView error
 import android.view.inputmethod.InputConnection;
 import android.inputmethodservice.InputMethodService;
@@ -40,13 +42,19 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     }
 
     @Override
-    public View onCreateCandidatesView() {
-        Log.d("JV_DEBUG", "onCreateCandidatesView: Initializing Ribbon");
-        mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
-        suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
-        setCandidatesViewShown(true); 
-        return mCandidateView;
-    }
+public View onCreateCandidatesView() {
+    // Inflate your custom layout
+    mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
+    suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
+    
+    // GBoard-style: Ensure the view has a specific height so it doesn't "collapse"
+    mCandidateView.setLayoutParams(new FrameLayout.LayoutParams(
+        LayoutParams.MATCH_PARENT, 
+        getResources().getDimensionPixelSize(R.dimen.candidate_vertical_padding))); 
+
+    setCandidatesViewShown(true);
+    return mCandidateView;
+}
 
     @Override
 public void onStartInputView(EditorInfo info, boolean restarting) {
@@ -81,8 +89,14 @@ public void onStartInputView(EditorInfo info, boolean restarting) {
                 break;
 
             case -2: // The Symbol Toggle (?123)
-                Log.d("JV_DEBUG", "Symbol Mode Toggled");
-                break;
+              if (k.getXmlLayoutResId() == R.xml.qwerty) {
+                  k = new Keyboard(this, R.xml.symbols); 
+                  } else {
+                  k = new Keyboard(this, R.xml.qwerty);
+                  }
+                  kv.setKeyboard(k);
+                  kv.invalidateAllKeys();
+            break;
 
             default:
                 char code = (char) primaryCode;
