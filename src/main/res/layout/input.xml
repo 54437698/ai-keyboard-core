@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="300dp"
     android:layout_alignParentBottom="true"
-    android:keyBackground="@android:drawable/btn_default"
+    android:keyBackground="@drawable/key_bg_sovereign"
     android:keyTextColor="#000000"
+    android:background="#000000"
     android:visibility="visible" />
