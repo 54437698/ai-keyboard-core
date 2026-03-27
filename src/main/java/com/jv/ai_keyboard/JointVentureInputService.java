@@ -13,7 +13,6 @@ import android.os.Vibrator;
 import android.content.Context;   
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
-    // Keep all the variables and methods exactly as they were in #176
 
     private KeyboardView kv;
     private Keyboard qwertyKeyboard; 
@@ -28,7 +27,7 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         super.onCreate();
         npuEngine = new JvNativeEngine();
         npuEngine.initialize(this); 
-        Log.d("JV_DEBUG", "Sovereign Alpha " + BuildConfig.BUILD_VERSION + " Initialized");
+        Log.d("JV_DEBUG", "Sovereign Alpha Initialized");
     }
 
     @Override
@@ -45,12 +44,14 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     @Override
     public View onCreateCandidatesView() {
         mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
-        suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
+        // THE FIX: Matching your XML ID exactly
+        suggestionText = mCandidateView.findViewById(R.id.jv_candidate_text);
         return mCandidateView;
     }
 
     @Override
     public boolean onEvaluateCandidatesViewShown() {
+        // This forces the "SwiftKey Gap" to stay open
         return true; 
     }
 
