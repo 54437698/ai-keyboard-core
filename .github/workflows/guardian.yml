@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21' # <--- This MUST be 21 to solve the Version 65 error
+          java-version: '21'
 
       - name: Setup Android NDK
         id: setup-ndk
@@ -32,20 +32,20 @@ jobs:
 
       - name: Validate JSON Layout
         run: |
-          # Note: Ensure the path matches your repo (you moved it to assets earlier)
           cat src/main/assets/master_layout.json | python3 -m json.tool > /dev/null
           echo "✅ UI Layout is surgical."
 
-      - name: Build NPU Core & Assemble APK
+      - name: Build Alpha v1.1.${{ github.run_number }}
         run: |
-          # Ensure execution permissions and build
-          gradle assembleDebug --stacktrace
-          echo "✅ Silicon Brain and Android Identity are synced. APK Generated."
+          # Injecting the run_number directly into the Gradle build property
+          chmod +x gradlew
+          ./gradlew assembleDebug -PbuildNumber=${{ github.run_number }} --stacktrace
+          echo "✅ Build v1.1.${{ github.run_number }}-alpha is ready."
 
-      - name: Upload Sovereign APK
+      - name: Upload Sovereign Alpha APK
         uses: actions/upload-artifact@v4
         with:
-          name: JV-Keyboard-Alpha
-          # We use a wildcard here so it finds the APK even if paths shift slightly
+          # This creates a single download named with the build number
+          name: JV-Keyboard-Alpha-v1.1.${{ github.run_number }}
           path: "**/build/outputs/apk/debug/*.apk"
-          retention-days: 5
+          retention-days: 7
