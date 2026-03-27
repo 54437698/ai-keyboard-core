@@ -1,5 +1,6 @@
 package com.jv.ai_keyboard;
 
+import com.jv.ai_keyboard.BuildConfig;
 import android.view.inputmethod.EditorInfo; 
 import android.view.inputmethod.InputConnection;
 import android.inputmethodservice.InputMethodService;
@@ -23,13 +24,21 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     private boolean isCaps = false;
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        npuEngine = new JvNativeEngine();
-        npuEngine.initialize(this); 
-        Log.d("JV_DEBUG", "Sovereign LiteRT-LM Engine Initialized");
-    }
+public void onCreate() {
+    super.onCreate();
+    npuEngine = new JvNativeEngine();
+    npuEngine.initialize(this); 
 
+    // This pulls the "1.1.155-alpha" string we just set up in Gradle
+    String alphaVersion = BuildConfig.BUILD_VERSION;
+    
+    Log.d("JV_DEBUG", "Sovereign Alpha " + alphaVersion + " Initialized");
+
+    // Let's make it show up on the prediction bar when it starts
+    if (suggestionText != null) {
+        suggestionText.setText("Sovereign " + alphaVersion);
+    }
+}
     @Override
     public View onCreateInputView() {
         kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
@@ -52,8 +61,9 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         super.onStartInputView(info, restarting);
         setCandidatesViewShown(true); 
         if (suggestionText != null) {
-            suggestionText.setText("Jv-NPU Active..."); 
-            suggestionText.setVisibility(View.VISIBLE);
+           // This keeps the Version Number visible on start!
+        suggestionText.setText("Sovereign " + BuildConfig.BUILD_VERSION); 
+        suggestionText.setVisibility(View.VISIBLE);
         }
     }
 
