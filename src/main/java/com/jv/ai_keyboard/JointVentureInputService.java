@@ -10,46 +10,43 @@ import android.view.View;
 import android.view.KeyEvent; 
 import android.widget.TextView;
 import android.util.Log;
-import android.os.Vibrator;      // Moved to top
-import android.content.Context;   // Moved to top
+import android.os.Vibrator;      
+import android.content.Context;   
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
-    private boolean isSymbols = false;
-    private JvNativeEngine npuEngine;
     private KeyboardView kv;
-    private Keyboard k;
+    private Keyboard qwertyKeyboard; 
+    private Keyboard symbolsKeyboard; 
+    private JvNativeEngine npuEngine;
     private View mCandidateView;
     private TextView suggestionText;
     private boolean isCaps = false;
 
     @Override
-public void onCreate() {
-    super.onCreate();
-    npuEngine = new JvNativeEngine();
-    npuEngine.initialize(this); 
-
-    // This pulls the "1.1.155-alpha" string we just set up in Gradle
-    String alphaVersion = BuildConfig.BUILD_VERSION;
-    
-    Log.d("JV_DEBUG", "Sovereign Alpha " + alphaVersion + " Initialized");
-
-    // Let's make it show up on the prediction bar when it starts
-    if (suggestionText != null) {
-        suggestionText.setText("Sovereign " + alphaVersion);
+    public void onCreate() {
+        super.onCreate();
+        npuEngine = new JvNativeEngine();
+        npuEngine.initialize(this); 
+        Log.d("JV_DEBUG", "Sovereign Alpha " + BuildConfig.BUILD_VERSION + " Initialized");
     }
-}
+
     @Override
     public View onCreateInputView() {
         kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
-        k = new Keyboard(this, R.xml.qwerty);
-        kv.setKeyboard(k);
+        
+        // Initialize BOTH layouts
+        qwertyKeyboard = new Keyboard(this, R.xml.qwerty);
+        symbolsKeyboard = new Keyboard(this, R.xml.symbols);
+        
+        kv.setKeyboard(qwertyKeyboard);
         kv.setOnKeyboardActionListener(this);
         return kv;
     }
 
     @Override
     public View onCreateCandidatesView() {
+        // This keeps your prediction bar alive!
         mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
         suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
         setCandidatesViewShown(true); 
@@ -61,9 +58,16 @@ public void onCreate() {
         super.onStartInputView(info, restarting);
         setCandidatesViewShown(true); 
         if (suggestionText != null) {
-           // This keeps the Version Number visible on start!
-        suggestionText.setText("Sovereign " + BuildConfig.BUILD_VERSION); 
-        suggestionText.setVisibility(View.VISIBLE);
+            // Displays your "loot" version number on start
+            suggestionText.setText("Sovereign " + BuildConfig.BUILD_VERSION); 
+            suggestionText.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void setKeyboard(Keyboard nextKeyboard) {
+        if (kv != null) {
+            kv.setKeyboard(nextKeyboard);
+            kv.invalidateAllKeys(); 
         }
     }
 
@@ -73,33 +77,25 @@ public void onCreate() {
         if (ic == null) return;
 
         switch (primaryCode) {
-            case Keyboard.KEYCODE_DELETE:
+            case Keyboard.KEYCODE_DELETE: 
                 ic.deleteSurroundingText(1, 0);
                 break;
             case Keyboard.KEYCODE_SHIFT:
                 isCaps = !isCaps;
-                k.setShifted(isCaps);
+                qwertyKeyboard.setShifted(isCaps);
                 kv.invalidateAllKeys();
                 break;
-            case 10: 
+            case -2: // ABC Button
+                setKeyboard(qwertyKeyboard);
+                break;
+            case -6: // Symbols Button
+                setKeyboard(symbolsKeyboard);
+                break;
+            case 10: // Enter
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
                 break;
-            case -2: 
-                if (isSymbols) {
-                    k = new Keyboard(this, R.xml.qwerty);
-                    isSymbols = false;
-                } else {
-                    k = new Keyboard(this, R.xml.symbols);
-                    isSymbols = true;
-                }
-                kv.setKeyboard(k);
-                kv.invalidateAllKeys();
-                break;
-            case 999: 
-                handlePrediction(ic);
-                break;
-            case 32: 
+            case 32: // Space
                 ic.commitText(" ", 1);
                 handlePrediction(ic);
                 break;
@@ -110,7 +106,6 @@ public void onCreate() {
                 }
                 ic.commitText(String.valueOf(code), 1);
                 handlePrediction(ic);
-                break;
         }
     }
 
@@ -129,14 +124,12 @@ public void onCreate() {
 
     @Override 
     public void onPress(int primaryCode) {
-        // 1. Silent Ghost Fix
-        if (primaryCode == 999 || primaryCode == -2) {
+        if (primaryCode == -2 || primaryCode == -6) {
             kv.setPreviewEnabled(false);
         } else {
             kv.setPreviewEnabled(true);
         }
 
-        // 2. The S25 Ultra Haptic "Snap"
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (v != null) {
             v.vibrate(15); 
