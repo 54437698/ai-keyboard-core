@@ -13,14 +13,18 @@ android {
         targetSdk 34
         
         // --- ALPHA VERSIONING LOGIC START ---
-        // Catch the number from GitHub YAML (-PbuildNumber)
-        def buildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "0"
+        // 1. Get the number from GitHub, default to "1" if it's missing or "0"
+        def rawBuildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "1"
         
-        versionCode buildNum.toInteger()
-        versionName "1.1.${buildNum}-alpha"
+        // 2. Convert to Integer and ensure it is AT LEAST 1
+        def buildInt = rawBuildNum.toInteger()
+        def finalCode = buildInt > 0 ? buildInt : 1
+        
+        versionCode finalCode
+        versionName "1.1.${finalCode}-alpha"
 
-        // This creates the constant for your Java code
-        buildConfigField "String", "BUILD_VERSION", "\"1.1.${buildNum}-alpha\""
+        // 3. Bake it into the Java code
+        buildConfigField "String", "BUILD_VERSION", "\"1.1.${finalCode}-alpha\""
         // --- ALPHA VERSIONING LOGIC END ---
     }
 
