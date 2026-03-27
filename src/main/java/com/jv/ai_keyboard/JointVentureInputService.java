@@ -125,7 +125,7 @@ public void onStartInputView(EditorInfo info, boolean restarting) {
         }
     }
 
-    // --- MANDATORY OVERRIDES ---
+// --- MANDATORY OVERRIDES ---
     @Override public void onPress(int primaryCode) {}
     @Override public void onRelease(int primaryCode) {}
     @Override public void onText(CharSequence text) {}
