@@ -1,5 +1,7 @@
 package com.jv.ai_keyboard;
 
+import android.view.inputmethod.EditorInfo; // CRITICAL: Fixes onStartInputView error
+import android.view.inputmethod.InputConnection;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
@@ -45,6 +47,17 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         setCandidatesViewShown(true); 
         return mCandidateView;
     }
+
+    @Override
+public void onStartInputView(EditorInfo info, boolean restarting) {
+    super.onStartInputView(info, restarting);
+    
+    // This is the "Magic Command" that forces the prediction bar to show up.
+    // Without this, Android might keep the bar hidden to save screen space.
+    setCandidatesViewShown(true);
+    
+    Log.d("JV_DEBUG", "onStartInputView: Toolbar visibility forced.");
+}
 
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
