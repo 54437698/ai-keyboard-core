@@ -14,6 +14,7 @@ import android.util.Log;
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
     // --- CLASS VARIABLES ---
+    private boolean isSymbols = false;
     private JvNativeEngine npuEngine;
     private KeyboardView kv;
     private Keyboard k;
@@ -49,15 +50,20 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     }
 
     @Override
-public void onStartInputView(EditorInfo info, boolean restarting) {
-    super.onStartInputView(info, restarting);
-    
-    // This is the "Magic Command" that forces the prediction bar to show up.
-    // Without this, Android might keep the bar hidden to save screen space.
-    setCandidatesViewShown(true);
-    
-    Log.d("JV_DEBUG", "onStartInputView: Toolbar visibility forced.");
-}
+    public void onStartInputView(EditorInfo info, boolean restarting) {
+        super.onStartInputView(info, restarting);
+        
+        // This is the "Force Command" for the Sovereign Ribbon
+        // It tells Android not to collapse the candidate area.
+        setCandidatesViewShown(true); 
+        
+        // Ensure the NPU status is visible immediately on launch
+        if (suggestionText != null) {
+            suggestionText.setText("Jv-NPU Active..."); 
+            suggestionText.setVisibility(View.VISIBLE);
+            Log.d("JV_DEBUG", "Ribbon Status: FORCED VISIBLE");
+        }
+    }
 
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
@@ -79,13 +85,21 @@ public void onStartInputView(EditorInfo info, boolean restarting) {
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 break;
 
-            case -2: // The Symbol Toggle (?123)
-                Log.d("JV_DEBUG", "Switching to Symbols Layout");
-                // This swaps the keyboard to the symbols map
-                Keyboard symbols = new Keyboard(this, R.xml.symbols);
-                kv.setKeyboard(symbols);
-                break;
-
+          case -2: // The Symbol/ABC Toggle
+    if (isSymbols) {
+        // We are in symbols, go back to Letters
+        k = new Keyboard(this, R.xml.qwerty);
+        isSymbols = false;
+        Log.d("JV_DEBUG", "Switching to QWERTY Layout");
+    } else {
+        // We are in Letters, go to Symbols
+        k = new Keyboard(this, R.xml.symbols);
+        isSymbols = true;
+        Log.d("JV_DEBUG", "Switching to Symbols Layout");
+    }
+    kv.setKeyboard(k);
+    kv.invalidateAllKeys(); // This forces the visual refresh
+    break;
             case 999: // The G-Button (AI Pivot)
                 Log.d("JV_DEBUG", "G-Button Pressed: Triple Checking NPU");
                 // Let's make it trigger the prediction logic manually for a "Romantic" effect
