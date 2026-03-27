@@ -34,8 +34,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     @Override
     public View onCreateInputView() {
         kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
-        
-        // Initialize BOTH layouts
         qwertyKeyboard = new Keyboard(this, R.xml.qwerty);
         symbolsKeyboard = new Keyboard(this, R.xml.symbols);
         
@@ -46,7 +44,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     @Override
     public View onCreateCandidatesView() {
-        // This keeps your prediction bar alive!
         mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
         suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
         setCandidatesViewShown(true); 
@@ -58,7 +55,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         super.onStartInputView(info, restarting);
         setCandidatesViewShown(true); 
         if (suggestionText != null) {
-            // Displays your "loot" version number on start
             suggestionText.setText("Sovereign " + BuildConfig.BUILD_VERSION); 
             suggestionText.setVisibility(View.VISIBLE);
         }
@@ -77,25 +73,29 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         if (ic == null) return;
 
         switch (primaryCode) {
-            case Keyboard.KEYCODE_DELETE: 
+            case -5: // DELETE
                 ic.deleteSurroundingText(1, 0);
                 break;
-            case Keyboard.KEYCODE_SHIFT:
+            case -1: // SHIFT
                 isCaps = !isCaps;
                 qwertyKeyboard.setShifted(isCaps);
                 kv.invalidateAllKeys();
                 break;
-            case -2: // ABC Button
-                setKeyboard(qwertyKeyboard);
+            case -2: // SYMBOLS TOGGLE
+                if (kv.getKeyboard() == qwertyKeyboard) {
+                    setKeyboard(symbolsKeyboard);
+                } else {
+                    setKeyboard(qwertyKeyboard);
+                }
                 break;
-            case -6: // Symbols Button
-                setKeyboard(symbolsKeyboard);
+            case 999: // G BUTTON
+                handlePrediction(ic); 
                 break;
-            case 10: // Enter
+            case 10: // ENTER
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
                 break;
-            case 32: // Space
+            case 32: // SPACE
                 ic.commitText(" ", 1);
                 handlePrediction(ic);
                 break;
@@ -124,16 +124,13 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     @Override 
     public void onPress(int primaryCode) {
-        if (primaryCode == -2 || primaryCode == -6) {
+        if (primaryCode == -2 || primaryCode == 999) {
             kv.setPreviewEnabled(false);
         } else {
             kv.setPreviewEnabled(true);
         }
-
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (v != null) {
-            v.vibrate(15); 
-        }
+        if (v != null) { v.vibrate(15); }
     }
 
     @Override public void onRelease(int primaryCode) {}
