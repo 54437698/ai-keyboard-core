@@ -118,4 +118,25 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     }
 
     @Override 
-    public void onPress(int primaryCode)
+    public void onPress(int primaryCode) {
+        // 1. Silent Ghost Fix
+        if (primaryCode == 999 || primaryCode == -2) {
+            kv.setPreviewEnabled(false);
+        } else {
+            kv.setPreviewEnabled(true);
+        }
+
+        // 2. The S25 Ultra Haptic "Snap"
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (v != null) {
+            v.vibrate(15); 
+        }
+    }
+
+    @Override public void onRelease(int primaryCode) {}
+    @Override public void onText(CharSequence text) {}
+    @Override public void swipeLeft() {}
+    @Override public void swipeRight() {}
+    @Override public void swipeDown() {}
+    @Override public void swipeUp() {}
+}
