@@ -25,10 +25,12 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     @Override
     public void onCreate() {
-        super.onCreate();
-        npuEngine = new JvNativeEngine();
-        npuEngine.initialize(this); 
-        Log.d("JV_DEBUG", "Sovereign Alpha " + BuildConfig.BUILD_VERSION + " Initialized");
+    super.onCreate();
+    npuEngine = new JvNativeEngine();
+    npuEngine.initialize(this); 
+    // ADD THIS LINE BELOW:
+    setCandidatesViewShown(true);
+    Log.d("JV_DEBUG", "Sovereign Alpha " + BuildConfig.BUILD_VERSION + " Initialized");
     }
 
     @Override
@@ -50,6 +52,7 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         return mCandidateView;
     }
 
+    @Override
     public boolean onEvaluateCandidatesViewShown() {
         return true; 
     }
