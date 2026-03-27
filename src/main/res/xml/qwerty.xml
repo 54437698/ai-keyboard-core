@@ -60,8 +60,7 @@
         
         <Key android:codes="999" 
              android:keyLabel="G" 
-             android:keyWidth="10%p" 
-             android:isPreviewable="false" /> 
+             android:keyWidth="10%p"  
         
         <Key android:codes="32" android:keyLabel=" " android:keyWidth="45%p" android:isRepeatable="true"/>
         
