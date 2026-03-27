@@ -6,6 +6,6 @@
     android:layout_height="300dp"
     android:layout_alignParentBottom="true"
     android:keyBackground="@drawable/key_bg_sovereign"
-    android:keyTextColor="#000000"
+    android:keyTextColor="#00E5FF"
     android:background="#000000"
     android:visibility="visible" />
