@@ -1,25 +1,25 @@
 package com.jv.ai_keyboard;
 
-import android.widget.FrameLayout;
-import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.EditorInfo; // CRITICAL: Fixes onStartInputView error
 import android.view.inputmethod.InputConnection;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.view.View;
-import android.view.KeyEvent;
+import android.view.KeyEvent; // ADDED: Required for the DONE key
+import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 import android.util.Log;
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
 
+    // --- CLASS VARIABLES ---
     private JvNativeEngine npuEngine;
     private KeyboardView kv;
     private Keyboard k;
     private View mCandidateView;
     private TextView suggestionText;
-    private boolean isCaps = false;
+    private boolean isCaps = false; // Moved here for proper scope
 
     @Override
     public void onCreate() {
@@ -27,35 +27,71 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         npuEngine = new JvNativeEngine();
         npuEngine.initialize(this); 
         Log.d("JV_DEBUG", "Sovereign LiteRT-LM Engine Initialized");
-        Log.d("JV_DEBUG", "Sovereign Engine Initialized");
     }
 
     @Override
-@@ -43,7 +43,7 @@
+    public View onCreateInputView() {
+        Log.d("JV_DEBUG", "onCreateInputView: Loading QWERTY Layout");
+        kv = (KeyboardView) getLayoutInflater().inflate(R.layout.input, null);
+        k = new Keyboard(this, R.xml.qwerty);
+        kv.setKeyboard(k);
+        kv.setOnKeyboardActionListener(this);
+        return kv;
+    }
+
+    @Override
+    public View onCreateCandidatesView() {
+        Log.d("JV_DEBUG", "onCreateCandidatesView: Initializing Ribbon");
         mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
         suggestionText = mCandidateView.findViewById(R.id.suggestion_1);
+        setCandidatesViewShown(true); 
+        return mCandidateView;
+    }
 
-        // This sets the Ribbon height to 46dp manually so the build won't fail
-        // Use density-independent pixels (46dp) to avoid R.dimen errors
-        float density = getResources().getDisplayMetrics().density;
-        int heightInPixels = (int) (46 * density); 
+    @Override
+public void onStartInputView(EditorInfo info, boolean restarting) {
+    super.onStartInputView(info, restarting);
+    
+    // This is the "Magic Command" that forces the prediction bar to show up.
+    // Without this, Android might keep the bar hidden to save screen space.
+    setCandidatesViewShown(true);
+    
+    Log.d("JV_DEBUG", "onStartInputView: Toolbar visibility forced.");
+}
 
-@@ -81,41 +81,40 @@
-                if (k.getXmlLayoutResId() == R.xml.qwerty) {
-                    k = new Keyboard(this, R.xml.symbols); 
-                } else {
-                    k = new Keyboard(this, R.xml.symbols); // Ensure fallback
-                    k = new Keyboard(this, R.xml.qwerty);
-                }
-                kv.setKeyboard(k);
-                kv.invalidateAllKeys();
+    @Override
+    public void onKey(int primaryCode, int[] keyCodes) {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return;
+
+        switch (primaryCode) {
+            case Keyboard.KEYCODE_DELETE:
+                ic.deleteSurroundingText(1, 0);
                 break;
+
+            case Keyboard.KEYCODE_SHIFT:
+                isCaps = !isCaps;
+                k.setShifted(isCaps);
+                kv.invalidateAllKeys(); // Redraws keys to show CAPS status
+                break;
+
+            case Keyboard.KEYCODE_DONE:
+                // This makes the 'DONE/Enter' key actually work
+                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+                break;
+
+            case -2: // The Symbol Toggle (?123)
+                Log.d("JV_DEBUG", "Symbol Mode Toggled");
+                break;
+
             default:
                 char code = (char) primaryCode;
                 if (Character.isLetter(code) && isCaps) {
                     code = Character.toUpperCase(code);
                 }
                 ic.commitText(String.valueOf(code), 1);
+                
+                // Trigger your Semantic Pivot Logic
                 handlePrediction(ic);
                 break;
         }
@@ -65,6 +101,7 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         if (suggestionText != null && npuEngine != null) {
             CharSequence currentText = ic.getTextBeforeCursor(20, 0);
             String inputContext = (currentText != null) ? currentText.toString() : "";
+
             new Thread(() -> {
                 String prediction = npuEngine.getPrediction(inputContext);
                 if (prediction != null && !prediction.isEmpty()) {
@@ -74,6 +111,7 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         }
     }
 
+    // --- MANDATORY OVERRIDES ---
     @Override public void onPress(int primaryCode) {}
     @Override public void onRelease(int primaryCode) {}
     @Override public void onText(CharSequence text) {}
