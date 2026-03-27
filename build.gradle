@@ -13,22 +13,26 @@ android {
         targetSdk 34
         
         // --- ALPHA VERSIONING LOGIC START ---
-        // 1. Get the number from GitHub, default to "1" if it's missing or "0"
         def rawBuildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "1"
-        
-        // 2. Convert to Integer and ensure it is AT LEAST 1
         def buildInt = rawBuildNum.toInteger()
         def finalCode = buildInt > 0 ? buildInt : 1
         
         versionCode finalCode
         versionName "1.1.${finalCode}-alpha"
 
-        // 3. Bake it into the Java code
         buildConfigField "String", "BUILD_VERSION", "\"1.1.${finalCode}-alpha\""
         // --- ALPHA VERSIONING LOGIC END ---
     }
 
-    // Required to make the BUILD_VERSION accessible in Java
+    // --- RENAME OUTPUT APK START ---
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            // Uses that finalCode variable to name the file
+            outputFileName = "Sovereign-v${defaultConfig.versionCode}-${variant.name}.apk"
+        }
+    }
+    // --- RENAME OUTPUT APK END ---
+
     buildFeatures {
         buildConfig = true
     }
@@ -63,8 +67,4 @@ android {
             assets.srcDirs = ['src/main/assets'] 
         }
     }
-}
-
-dependencies {
-    implementation("com.google.ai.edge.litertlm:litertlm-android:0.9.0-beta")
 }
