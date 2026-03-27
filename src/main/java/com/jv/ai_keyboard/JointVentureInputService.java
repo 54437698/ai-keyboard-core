@@ -65,23 +65,36 @@ public void onStartInputView(EditorInfo info, boolean restarting) {
         if (ic == null) return;
 
         switch (primaryCode) {
-            case Keyboard.KEYCODE_DELETE:
+            case Keyboard.KEYCODE_DELETE: // -5
                 ic.deleteSurroundingText(1, 0);
                 break;
 
-            case Keyboard.KEYCODE_SHIFT:
+            case Keyboard.KEYCODE_SHIFT: // -1
                 isCaps = !isCaps;
                 k.setShifted(isCaps);
-                kv.invalidateAllKeys(); // Redraws keys to show CAPS status
+                kv.invalidateAllKeys();
                 break;
 
-            case Keyboard.KEYCODE_DONE:
-                // This makes the 'DONE/Enter' key actually work
+            case 10: // Enter/Search (↵)
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 break;
 
             case -2: // The Symbol Toggle (?123)
-                Log.d("JV_DEBUG", "Symbol Mode Toggled");
+                Log.d("JV_DEBUG", "Switching to Symbols Layout");
+                // This swaps the keyboard to the symbols map
+                Keyboard symbols = new Keyboard(this, R.xml.symbols);
+                kv.setKeyboard(symbols);
+                break;
+
+            case 999: // The G-Button (AI Pivot)
+                Log.d("JV_DEBUG", "G-Button Pressed: Triple Checking NPU");
+                // Let's make it trigger the prediction logic manually for a "Romantic" effect
+                handlePrediction(ic);
+                break;
+
+            case 32: // Space
+                ic.commitText(" ", 1);
+                handlePrediction(ic);
                 break;
 
             default:
@@ -90,8 +103,6 @@ public void onStartInputView(EditorInfo info, boolean restarting) {
                     code = Character.toUpperCase(code);
                 }
                 ic.commitText(String.valueOf(code), 1);
-                
-                // Trigger your Semantic Pivot Logic
                 handlePrediction(ic);
                 break;
         }
