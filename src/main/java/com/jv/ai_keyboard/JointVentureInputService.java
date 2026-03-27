@@ -53,30 +53,18 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     }
 
     @Override
-    public boolean onEvaluateCandidatesViewShown() {
-        return true; 
-    }
-
-    @Override
     public void onStartInputView(EditorInfo info, boolean restarting) {
+        // Explicitly calling super here is the "Safety Pin" 
         super.onStartInputView(info, restarting);
         setCandidatesViewShown(true); 
         
         if (suggestionText != null) {
-            suggestionText.setText("Sovereign NPU: Standing By..."); 
+            suggestionText.setText("JV Sovereign: Online"); 
             suggestionText.setVisibility(View.VISIBLE);
         }
     }
 
-    private void setKeyboard(Keyboard nextKeyboard) {
-        if (kv != null && nextKeyboard != null) {
-            kv.setKeyboard(nextKeyboard);
-            kv.invalidateAllKeys(); 
-        }
-    }
-
-    // --- INTERFACE METHODS: Clean Signatures for Build #182 ---
-
+    @Override
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
@@ -87,32 +75,11 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 break;
             case -1: // SHIFT
                 isCaps = !isCaps;
-                if (qwertyKeyboard != null) {
-                    qwertyKeyboard.setShifted(isCaps);
-                }
-                if (kv != null) {
-                    kv.invalidateAllKeys();
-                }
+                if (qwertyKeyboard != null) qwertyKeyboard.setShifted(isCaps);
+                if (kv != null) kv.invalidateAllKeys();
                 break;
-            case -2: // SYMBOLS
-                if (kv != null) {
-                    if (kv.getKeyboard() == qwertyKeyboard) {
-                        setKeyboard(symbolsKeyboard);
-                    } else {
-                        setKeyboard(qwertyKeyboard);
-                    }
-                }
-                break;
-            case 999: // G BUTTON (NPU Trigger)
+            case 999: // NPU
                 handlePrediction(ic); 
-                break;
-            case 10: // ENTER
-                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
-                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
-                break;
-            case 32: // SPACE
-                ic.commitText(" ", 1);
-                handlePrediction(ic);
                 break;
             default:
                 char code = (char) primaryCode;
@@ -124,24 +91,14 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         }
     }
 
-    public void onPress(int primaryCode) {
-        if (kv != null) {
-            if (primaryCode == -2 || primaryCode == 999) {
-                kv.setPreviewEnabled(false);
-            } else {
-                kv.setPreviewEnabled(true);
-            }
-        }
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (v != null) { v.vibrate(15); }
-    }
-
-    public void onRelease(int primaryCode) {}
-    public void onText(CharSequence text) {}
-    public void swipeLeft() {}
-    public void swipeRight() {}
-    public void swipeDown() {}
-    public void swipeUp() {}
+    // Required by Interface
+    @Override public void onPress(int primaryCode) {}
+    @Override public void onRelease(int primaryCode) {}
+    @Override public void onText(CharSequence text) {}
+    @Override public void swipeLeft() {}
+    @Override public void swipeRight() {}
+    @Override public void swipeDown() {}
+    @Override public void swipeUp() {}
 
     private void handlePrediction(InputConnection ic) {
         if (suggestionText != null && npuEngine != null) {
