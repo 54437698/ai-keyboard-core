@@ -1,0 +1,29 @@
+name: Generate Pro Wrapper
+on: workflow_dispatch 
+
+jobs:
+  setup-wrapper:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Generate Wrapper Files
+        run: |
+          gradle wrapper --gradle-version 8.5
+          chmod +x gradlew
+
+      - name: Commit Wrapper to Repo
+        run: |
+          git config --global user.name "Joint Venture Guardian"
+          git config --global user.email "guardian@jv.ai"
+          git add gradlew gradlew.bat gradle/
+          git commit -m "Admin: Injected Pro Gradle Wrapper"
+          git push
