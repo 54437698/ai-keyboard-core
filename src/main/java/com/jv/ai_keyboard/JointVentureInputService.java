@@ -4,6 +4,7 @@ import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.view.View;
+import android.view.KeyEvent; // ADDED: Required for the DONE key
 import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 import android.util.Log;
@@ -16,6 +17,7 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     private Keyboard k;
     private View mCandidateView;
     private TextView suggestionText;
+    private boolean isCaps = false; // Moved here for proper scope
 
     @Override
     public void onCreate() {
@@ -32,8 +34,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         k = new Keyboard(this, R.xml.qwerty);
         kv.setKeyboard(k);
         kv.setOnKeyboardActionListener(this);
-        kv.setFocusable(true);
-        kv.setFocusableInTouchMode(true);
         return kv;
     }
 
@@ -56,27 +56,47 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 ic.deleteSurroundingText(1, 0);
                 break;
 
+            case Keyboard.KEYCODE_SHIFT:
+                isCaps = !isCaps;
+                k.setShifted(isCaps);
+                kv.invalidateAllKeys(); // Redraws keys to show CAPS status
+                break;
+
+            case Keyboard.KEYCODE_DONE:
+                // This makes the 'DONE/Enter' key actually work
+                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
+                break;
+
+            case -2: // The Symbol Toggle (?123)
+                Log.d("JV_DEBUG", "Symbol Mode Toggled");
+                break;
+
             default:
                 char code = (char) primaryCode;
+                if (Character.isLetter(code) && isCaps) {
+                    code = Character.toUpperCase(code);
+                }
                 ic.commitText(String.valueOf(code), 1);
                 
-                // --- THE NPU HANDSHAKE ---
-                if (suggestionText != null && npuEngine != null) {
-                    CharSequence currentText = ic.getTextBeforeCursor(20, 0);
-                    String inputContext = (currentText != null) ? currentText.toString() : "";
+                // Trigger your Semantic Pivot Logic
+                handlePrediction(ic);
+                break;
+        }
+    }
 
-                    new Thread(() -> {
-                        String prediction = npuEngine.getPrediction(inputContext);
-                        suggestionText.post(() -> {
-                            if (prediction != null && !prediction.isEmpty()) {
-                                suggestionText.setText(prediction);
-                            }
-                        });
-                    }).start();
+    private void handlePrediction(InputConnection ic) {
+        if (suggestionText != null && npuEngine != null) {
+            CharSequence currentText = ic.getTextBeforeCursor(20, 0);
+            String inputContext = (currentText != null) ? currentText.toString() : "";
+
+            new Thread(() -> {
+                String prediction = npuEngine.getPrediction(inputContext);
+                if (prediction != null && !prediction.isEmpty()) {
+                    suggestionText.post(() -> suggestionText.setText(prediction));
                 }
-                break; 
-        } // This closes the switch
-    } // This closes the onKey method
+            }).start();
+        }
+    }
 
     // --- MANDATORY OVERRIDES ---
     @Override public void onPress(int primaryCode) {}
