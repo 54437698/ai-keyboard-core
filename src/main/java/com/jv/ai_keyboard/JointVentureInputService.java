@@ -36,22 +36,24 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         qwertyKeyboard = new Keyboard(this, R.xml.qwerty);
         symbolsKeyboard = new Keyboard(this, R.xml.symbols);
         
-        kv.setKeyboard(qwertyKeyboard);
-        kv.setOnKeyboardActionListener(this);
+        if (kv != null) {
+            kv.setKeyboard(qwertyKeyboard);
+            kv.setOnKeyboardActionListener(this);
+        }
         return kv;
     }
 
     @Override
     public View onCreateCandidatesView() {
         mCandidateView = getLayoutInflater().inflate(R.layout.candidate_preview, null);
-        // THE FIX: Matching your XML ID exactly
-        suggestionText = mCandidateView.findViewById(R.id.jv_candidate_text);
+        if (mCandidateView != null) {
+            suggestionText = mCandidateView.findViewById(R.id.jv_candidate_text);
+        }
         return mCandidateView;
     }
 
     @Override
     public boolean onEvaluateCandidatesViewShown() {
-        // This forces the "SwiftKey Gap" to stay open
         return true; 
     }
 
@@ -67,13 +69,14 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     }
 
     private void setKeyboard(Keyboard nextKeyboard) {
-        if (kv != null) {
+        if (kv != null && nextKeyboard != null) {
             kv.setKeyboard(nextKeyboard);
             kv.invalidateAllKeys(); 
         }
     }
 
-    @Override
+    // --- INTERFACE METHODS: Clean Signatures for Build #182 ---
+
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
@@ -84,17 +87,23 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 break;
             case -1: // SHIFT
                 isCaps = !isCaps;
-                qwertyKeyboard.setShifted(isCaps);
-                kv.invalidateAllKeys();
-                break;
-            case -2: // SYMBOLS
-                if (kv.getKeyboard() == qwertyKeyboard) {
-                    setKeyboard(symbolsKeyboard);
-                } else {
-                    setKeyboard(qwertyKeyboard);
+                if (qwertyKeyboard != null) {
+                    qwertyKeyboard.setShifted(isCaps);
+                }
+                if (kv != null) {
+                    kv.invalidateAllKeys();
                 }
                 break;
-            case 999: // G BUTTON
+            case -2: // SYMBOLS
+                if (kv != null) {
+                    if (kv.getKeyboard() == qwertyKeyboard) {
+                        setKeyboard(symbolsKeyboard);
+                    } else {
+                        setKeyboard(qwertyKeyboard);
+                    }
+                }
+                break;
+            case 999: // G BUTTON (NPU Trigger)
                 handlePrediction(ic); 
                 break;
             case 10: // ENTER
@@ -115,6 +124,25 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         }
     }
 
+    public void onPress(int primaryCode) {
+        if (kv != null) {
+            if (primaryCode == -2 || primaryCode == 999) {
+                kv.setPreviewEnabled(false);
+            } else {
+                kv.setPreviewEnabled(true);
+            }
+        }
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (v != null) { v.vibrate(15); }
+    }
+
+    public void onRelease(int primaryCode) {}
+    public void onText(CharSequence text) {}
+    public void swipeLeft() {}
+    public void swipeRight() {}
+    public void swipeDown() {}
+    public void swipeUp() {}
+
     private void handlePrediction(InputConnection ic) {
         if (suggestionText != null && npuEngine != null) {
             CharSequence currentText = ic.getTextBeforeCursor(20, 0);
@@ -127,22 +155,4 @@ public class JointVentureInputService extends InputMethodService implements Keyb
             }).start();
         }
     }
-
-    @Override 
-    public void onPress(int primaryCode) {
-        if (primaryCode == -2 || primaryCode == 999) {
-            kv.setPreviewEnabled(false);
-        } else {
-            kv.setPreviewEnabled(true);
-        }
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (v != null) { v.vibrate(15); }
-    }
-
-    @Override public void onRelease(int primaryCode) {}
-    @Override public void onText(CharSequence text) {}
-    @Override public void swipeLeft() {}
-    @Override public void swipeRight() {}
-    @Override public void swipeDown() {}
-    @Override public void swipeUp() {}
 }
