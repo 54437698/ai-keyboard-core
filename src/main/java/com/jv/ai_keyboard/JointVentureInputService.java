@@ -50,10 +50,9 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         return mCandidateView;
     }
 
-    // --- THE VISIBILITY GLUE ---
     @Override
     public boolean onEvaluateCandidatesViewShown() {
-        return true; // Forces the bar to stay visible even when empty
+        return true; 
     }
 
     @Override
@@ -61,7 +60,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         super.onStartInputView(info, restarting);
         setCandidatesViewShown(true); 
         if (suggestionText != null) {
-            // This confirms the NPU and the specific build version are live
             suggestionText.setText("Jv-NPU Active | v" + BuildConfig.BUILD_VERSION); 
             suggestionText.setVisibility(View.VISIBLE);
         }
@@ -88,14 +86,14 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 qwertyKeyboard.setShifted(isCaps);
                 kv.invalidateAllKeys();
                 break;
-            case -2: // SYMBOLS TOGGLE (?123)
+            case -2: // SYMBOLS
                 if (kv.getKeyboard() == qwertyKeyboard) {
                     setKeyboard(symbolsKeyboard);
                 } else {
                     setKeyboard(qwertyKeyboard);
                 }
                 break;
-            case 999: // G BUTTON (Gemini Core Trigger)
+            case 999: // G BUTTON
                 handlePrediction(ic); 
                 break;
             case 10: // ENTER
@@ -131,7 +129,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     @Override 
     public void onPress(int primaryCode) {
-        // Disable key preview for functional keys to keep it clean
         if (primaryCode == -2 || primaryCode == 999) {
             kv.setPreviewEnabled(false);
         } else {
