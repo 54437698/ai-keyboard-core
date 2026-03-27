@@ -27,7 +27,7 @@
         <service 
             android:name=".JointVentureInputService"
             android:permission="android.permission.BIND_INPUT_METHOD"
-            android:theme="@style/Theme.JV_Keyboard" 
+            android:theme="@android:style/Theme.InputMethod"
             android:exported="true"
             android:directBootAware="true"> 
             
