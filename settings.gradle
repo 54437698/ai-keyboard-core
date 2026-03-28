@@ -8,9 +8,10 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()            // This is where LiteRT 2.1.0 lives
+        google()            // <--- This is the "Key" to LiteRT
         mavenCentral()
     }
 }
+
 rootProject.name = "ai_keyboard"
 include ':app'
