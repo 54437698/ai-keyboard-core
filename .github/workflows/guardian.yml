@@ -47,7 +47,9 @@ jobs:
       - name: Upload Sovereign Alpha APK
         uses: actions/upload-artifact@v4
         with:
-          # This creates a single download named with the build number
           name: JV-Keyboard-Alpha-v1.1.${{ github.run_number }}
-          path: "**/build/outputs/apk/debug/*.apk"
+          # REMOVE the quotes and use the double-star hunt 🏹
+          path: app/build/outputs/apk/**/*.apk
+          # The "Bollocks Alarm" - if it doesn't find the 20MB, the build FAILS
+          if-no-files-found: error
           retention-days: 7
