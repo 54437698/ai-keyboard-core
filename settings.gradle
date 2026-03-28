@@ -8,9 +8,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        // This is the direct door to the artifact you found
-        maven { url "https://maven.google.com" }
-        google() 
+        google()            // This hits https://maven.google.com/
         mavenCentral()
     }
 }
