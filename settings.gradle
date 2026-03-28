@@ -8,10 +8,11 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()            // <--- This is the "Key" to LiteRT
+        google()            // <--- Essential
         mavenCentral()
+        // Add this specific mirror just in case the runner is being stubborn
+        maven { url "https://maven.google.com" } 
     }
 }
-
-rootProject.name = "ai_keyboard"
+rootProject.name = "ai-keyboard-core"
 include ':app'
