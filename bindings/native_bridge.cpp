@@ -9,7 +9,7 @@
 #include "../core/inference_bridge.cpp"
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_jointventure_keyboard_NativeInterface_getPrediction(
+Java_com_jv_ai_1keyboard_JvNativeEngine_getPrediction(
     JNIEnv* env, 
     jobject /* this */, 
     jstring input) {
