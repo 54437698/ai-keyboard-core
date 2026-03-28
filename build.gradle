@@ -12,26 +12,36 @@ android {
         minSdk 24
         targetSdk 34
         
-        // --- ALPHA VERSIONING LOGIC START ---
+        // --- MISSING LINK 1: ABI FILTERS ---
+        externalNativeBuild {
+            cmake {
+                abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+            }
+        }
+
         def rawBuildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "1"
         def buildInt = rawBuildNum.toInteger()
         def finalCode = buildInt > 0 ? buildInt : 1
         
         versionCode finalCode
         versionName "1.1.${finalCode}-alpha"
-
         buildConfigField "String", "BUILD_VERSION", "\"1.1.${finalCode}-alpha\""
-        // --- ALPHA VERSIONING LOGIC END ---
     }
 
-    // --- RENAME OUTPUT APK START ---
+    // --- MISSING LINK 2: CMAKE PATH ---
+    externalNativeBuild {
+        cmake {
+            // Adjust this path if your CMakeLists.txt is in a different folder!
+            path "src/main/cpp/CMakeLists.txt" 
+            version "3.22.1+"
+        }
+    }
+
     applicationVariants.all { variant ->
         variant.outputs.all {
-            // Uses that finalCode variable to name the file
             outputFileName = "Sovereign-v${defaultConfig.versionCode}-${variant.name}.apk"
         }
     }
-    // --- RENAME OUTPUT APK END ---
 
     buildFeatures {
         buildConfig = true
@@ -57,14 +67,5 @@ android {
 
     aaptOptions {
         noCompress "litertlm", "tflite"
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'src/main/AndroidManifest.xml'
-            java.srcDirs = ['src/main/java']
-            res.srcDirs = ['src/main/res']
-            assets.srcDirs = ['src/main/assets'] 
-        }
     }
 }
