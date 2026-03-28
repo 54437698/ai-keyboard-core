@@ -8,10 +8,10 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()            // <--- Essential
+        // This is the direct door to the artifact you found
+        maven { url "https://maven.google.com" }
+        google() 
         mavenCentral()
-        // Add this specific mirror just in case the runner is being stubborn
-        maven { url "https://maven.google.com" } 
     }
 }
 rootProject.name = "ai-keyboard-core"
