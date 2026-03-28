@@ -8,8 +8,9 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
-        mavenCentral()
+        google()            // <--- This MUST be here
+        mavenCentral()      // <--- This MUST be here
     }
 }
-rootProject.name = "ai-keyboard-core"
+rootProject.name = "ai_keyboard"
+include ':app'
