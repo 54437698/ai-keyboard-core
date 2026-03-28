@@ -8,8 +8,8 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()            // <--- This MUST be here
-        mavenCentral()      // <--- This MUST be here
+        google()            // This is where LiteRT 2.1.0 lives
+        mavenCentral()
     }
 }
 rootProject.name = "ai_keyboard"
