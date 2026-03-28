@@ -12,10 +12,11 @@ android {
         minSdk 24
         targetSdk 34
         
-        // --- MISSING LINK 1: ABI FILTERS ---
         externalNativeBuild {
             cmake {
                 abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+                // This tells CMake to look for the Prefab packages
+                arguments "-DANDROID_STL=c++_shared"
             }
         }
 
@@ -28,23 +29,16 @@ android {
         buildConfigField "String", "BUILD_VERSION", "\"1.1.${finalCode}-alpha\""
     }
 
-    // --- MISSING LINK 2: CMAKE PATH ---
     externalNativeBuild {
         cmake {
-            // Adjust this path if your CMakeLists.txt is in a different folder!
-         path "CMakeLists.txt"
+            path "CMakeLists.txt"
             version "3.22.1+"
-        }
-    }
-
-    applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "Sovereign-v${defaultConfig.versionCode}-${variant.name}.apk"
         }
     }
 
     buildFeatures {
         buildConfig = true
+        prefab = true 
     }
 
     compileOptions {
@@ -68,4 +62,14 @@ android {
     aaptOptions {
         noCompress "litertlm", "tflite"
     }
+}
+
+dependencies {
+    // The "Engine" (The 19MB Muscle)
+    implementation 'com.google.ai.edge:litert:1.0.1'
+    implementation 'com.google.ai.edge:litert-api:1.0.1'
+    
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
 }
