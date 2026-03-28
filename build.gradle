@@ -14,18 +14,16 @@ android {
         
         externalNativeBuild {
             cmake {
-                abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+                abiFilters "arm64-v8a"
                 arguments "-DANDROID_STL=c++_shared"
             }
         }
 
         def rawBuildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "1"
         def buildInt = rawBuildNum.toInteger()
-        def finalCode = buildInt > 0 ? buildInt : 1
         
-        versionCode finalCode
-        versionName "1.1.${finalCode}-alpha"
-        buildConfigField "String", "BUILD_VERSION", "\"1.1.${finalCode}-alpha\""
+        versionCode buildInt
+        versionName "1.1.${buildInt}-alpha"
     }
 
     externalNativeBuild {
@@ -53,23 +51,20 @@ android {
         jniLibs {
             useLegacyPackaging = true
         }
-        resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
-        }
     }
 
     aaptOptions {
-        noCompress "litertlm", "tflite"
+        noCompress "litert", "tflite"
     }
 }
 
 dependencies {
-    // The "Engine" (Stable 2.1.0 LiteRT for 2026)
+    // LiteRT 2.1.0 Stable Engine
     implementation 'com.google.ai.edge.litert:litert:2.1.0'
     implementation 'com.google.ai.edge.litert:litert-api:2.1.0'
     implementation 'com.google.ai.edge.litert:litert-gpu:2.1.0'
     
-    // Core Android Libraries
+    // UI & Core
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
