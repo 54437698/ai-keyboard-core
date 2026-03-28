@@ -37,19 +37,16 @@ jobs:
 
       - name: Build Alpha v1.1.${{ github.run_number }}
         run: |
-          # 1. Give the script permission to run
           chmod +x gradlew
-          
-          # 2. Run the Pro Build using the Wrapper we just injected
           ./gradlew assembleDebug -PbuildNumber=${{ github.run_number }} --stacktrace
-          
           echo "✅ Sovereign Alpha Build #158 is forging..."
+
       - name: Upload Sovereign Alpha APK
         uses: actions/upload-artifact@v4
         with:
           name: JV-Keyboard-Alpha-v1.1.${{ github.run_number }}
-          # REMOVE the quotes and use the double-star hunt 🏹
-          path: app/build/outputs/apk/**/*.apk
-          # The "Bollocks Alarm" - if it doesn't find the 20MB, the build FAILS
+          # This searches EVERYWHERE for the APK - No more "No files found"
+          path: "**/*.apk"
+          # This forces an error if the APK didn't actually build
           if-no-files-found: error
           retention-days: 7
