@@ -6,10 +6,13 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    // CHANGE: Allow repositories to be defined in build.gradle
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT) 
     repositories {
-        google()            // This hits https://maven.google.com/
+        google()
         mavenCentral()
+        // Adding the PyTorch link here too for double-safety
+        maven { url 'https://ossci-android.s3.amazonaws.com/xml/nightly' }
     }
 }
 rootProject.name = "ai-keyboard-core"
