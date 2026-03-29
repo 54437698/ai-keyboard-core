@@ -14,18 +14,15 @@ jobs:
       - name: Download ExecuTorch Llama Model
         run: |
           mkdir -p app/src/main/assets/models/
-          # Download the actual ExecuTorch model (.pte)
           curl -L "https://pub-2fdef7a2969f432896661a396e749bc3.r2.dev/llama_v3_2_1b_q8.pte" -o app/src/main/assets/models/model.pte
-          # Download the required tokenizer
           curl -L "https://pub-2fdef7a2969f432896661a396e749bc3.r2.dev/tokenizer.bin" -o app/src/main/assets/models/tokenizer.bin
 
-      - name: Sovereign Guard: Verify Model Integrity
+      - name: Sovereign Guard
         run: |
-          # If the file is smaller than 100MB, it's a failed download (R2 error page)
           FILESIZE=$(stat -c%s "app/src/main/assets/models/model.pte")
           echo "Model size is $FILESIZE bytes"
-          if [ "$FILESIZE" -lt 100000000 ]; then
-            echo "CRITICAL ERROR: Model download failed (16KB Trap). Check R2 link or Bucket permissions."
+          if [ $FILESIZE -lt 100000000 ]; then
+            echo "ERROR: Model file too small"
             exit 1
           fi
 
@@ -38,7 +35,6 @@ jobs:
       - name: Build APK
         run: |
           chmod +x gradlew
-          # Added clean to ensure the cache error from your logs is wiped out
           ./gradlew clean assembleDebug --stacktrace -Dorg.gradle.jvmargs=-Xmx4g
 
       - name: Upload APK
