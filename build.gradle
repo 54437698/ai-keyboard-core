@@ -1,69 +1,65 @@
-plugins {
-    id 'com.android.application' version '8.2.2'
-    id 'org.jetbrains.kotlin.android' version '1.9.22'
-}
+package com.jv.ai_keyboard;
 
-android {
-    namespace 'com.jv.ai_keyboard'
-    compileSdk 34
+import android.content.Context;
+import com.facebook.soloader.SoLoader;
+import org.pytorch.executorch.LlamaModule;
 
-    defaultConfig {
-        applicationId "com.jv.ai_keyboard"
-        minSdk 24
-        targetSdk 34
-        
-        externalNativeBuild {
-            cmake {
-                abiFilters "arm64-v8a"
-                arguments "-DANDROID_STL=c++_shared"
-            }
-        }
+/**
+ * Sovereign: The Llama 3.2 1B Engine for Snapdragon 8 Elite.
+ * This class handles the native bridge to ExecuTorch.
+ */
+public class JvNativeEngine {
+    private LlamaModule llamaModule;
 
-        // Handles the build number for Run #210
-        def rawBuildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "210"
-        def buildInt = rawBuildNum.toInteger()
-        
-        versionCode buildInt
-        versionName "1.1.${buildInt}-alpha"
-    }
+    /**
+     * Wakes up the Llama brain. 
+     * Matches the call: npuEngine.initialize(this) in JointVentureInputService.
+     */
+    public void initialize(Context context) {
+        try {
+            // 1. Initialize the native loader (Critical for ExecuTorch)
+            SoLoader.init(context, false);
 
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-            version "3.22.1+"
-        }
-    }
+            // 2. Define the paths for the model and tokenizer
+            // Ensure your Workflow downloads these specific filenames
+            String modelPath = context.getFilesDir().getAbsolutePath() + "/models/model.pte";
+            String tokenizerPath = context.getFilesDir().getAbsolutePath() + "/models/tokenizer.bin";
 
-    buildFeatures {
-        buildConfig = true
-        prefab = true 
-    }
+            // 3. Load the module (0.7f temperature for natural typing flow)
+            llamaModule = new LlamaModule(modelPath, tokenizerPath, 0.7f);
+            
+            System.out.println("Sovereign: Llama 3.2 is online via ExecuTorch.");
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = true
+        } catch (Exception e) {
+            System.err.println("Sovereign Error: NPU/ExecuTorch initialization failed.");
+            e.printStackTrace();
         }
     }
 
-    aaptOptions {
-        noCompress "litert", "tflite"
+    /**
+     * Predicts the next word for the keyboard bar.
+     * Matches the call: npuEngine.getPrediction(inputContext) in JointVentureInputService.
+     */
+    public String getPrediction(String prompt) {
+        if (llamaModule == null) {
+            return "";
+        }
+        try {
+            // ExecuTorch handles the generation loop internally
+            return llamaModule.generate(prompt);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
     }
-}
 
-dependencies {
-    // Core ExecuTorch Runtime
-    implementation 'org.pytorch:executorch-android:1.1.0' 
-    
-    // Facebook's JNI glue (Required for ExecuTorch)
-    implementation 'com.facebook.soloader:soloader:0.10.5'
-    implementation 'com.facebook.fbjni:fbjni:0.7.0'
+    /**
+     * Clean up memory when the keyboard is hidden.
+     */
+    public void close() {
+        if (llamaModule != null) {
+            llamaModule.stop();
+            llamaModule = null;
+        }
+    }
 }
