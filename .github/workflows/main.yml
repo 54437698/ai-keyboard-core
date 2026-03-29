@@ -3,16 +3,16 @@ name: Build Sovereign Alpha
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # This lets you start it manually!
+  workflow_dispatch:
 
 jobs:
-  build:
+  build_job:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Fetch AI Model from Release
+      - name: Fetch AI Model
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           version: 'tags/v0.0-assets'
@@ -26,5 +26,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Gradle
-        run: ./gradlew assembleDebug
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
