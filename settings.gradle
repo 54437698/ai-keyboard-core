@@ -5,15 +5,17 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
-    // CHANGE: Allow repositories to be defined in build.gradle
-    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT) 
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
-        // Adding the PyTorch link here too for double-safety
-        maven { url 'https://ossci-android.s3.amazonaws.com/xml/nightly' }
+        // FIX: The official PyTorch stable repository
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url 'https://download.pytorch.org/maven' }
     }
 }
+
 rootProject.name = "ai-keyboard-core"
 include ':app'
