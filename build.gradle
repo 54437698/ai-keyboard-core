@@ -61,20 +61,14 @@ android {
 repositories {
     google()
     mavenCentral()
-    // FIX: Moving to the official stable PyTorch Maven
     maven { url 'https://download.pytorch.org/maven' }
 }
 
 dependencies {
-    // FIX: Using the stable versions that the server won't "Forbid"
+    // We only need these two. They include fbjni/soloader automatically.
     implementation 'org.pytorch:pytorch_android:2.1.0'
     implementation 'org.pytorch:pytorch_android_torchvision:2.1.0'
     
-    // Required JNI support
-    implementation 'com.facebook.soloader:soloader:0.10.5'
-    implementation 'com.facebook.fbjni:fbjni:0.7.0'
-    
-    // Standard Android support
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }
