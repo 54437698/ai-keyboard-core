@@ -54,23 +54,21 @@ android {
     }
 
     aaptOptions {
-        // Essential: prevents the model from being compressed
         noCompress "pte", "bin"
     }
 }
 
-// Repositories MUST come after the plugins and android blocks
 repositories {
     google()
     mavenCentral()
-    // This is the "Special Warehouse" where PyTorch keeps ExecuTorch
-    maven { url 'https://ossci-android.s3.amazonaws.com/xml/nightly' }
+    // FIX: Moving to the official stable PyTorch Maven
+    maven { url 'https://download.pytorch.org/maven' }
 }
 
 dependencies {
-    // Core ExecuTorch Runtime & Llama Support
-    implementation 'org.pytorch:executorch-android:1.1.0-rc1' 
-    implementation 'org.pytorch:executorch-llama-jni:1.1.0-rc1'
+    // FIX: Using the stable versions that the server won't "Forbid"
+    implementation 'org.pytorch:pytorch_android:2.1.0'
+    implementation 'org.pytorch:pytorch_android_torchvision:2.1.0'
     
     // Required JNI support
     implementation 'com.facebook.soloader:soloader:0.10.5'
