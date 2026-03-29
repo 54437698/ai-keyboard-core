@@ -1,33 +1,27 @@
 name: Sovereign Guardian Build
-
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
       - name: Download Llama Model
         run: |
           mkdir -p app/src/main/assets/models/
-          curl -L -f "https://huggingface.co/qualcomm/Llama-v3.2-1B-Instruct/resolve/main/llama_v3_2_1b_q8.tflite" -o app/src/main/assets/models/model.tflite
-
+          curl -L -f "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q8_0.tflite?download=true" -o app/src/main/assets/models/model.tflite
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-
       - name: Build APK
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
