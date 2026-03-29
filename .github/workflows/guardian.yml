@@ -3,7 +3,7 @@ name: Sovereign Guardian Build
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Allows you to trigger a build manually with one click
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,15 +12,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Model Directory
-        run: mkdir -p app/src/main/assets/models/
-
-      - name: Download Llama 3.2 1B (8-bit Optimized)
+      - name: Download Llama Model
         run: |
-          # Grabbing the 1.1GB Llama brain from the Qualcomm AI Hub mirror
-          curl -L "https://huggingface.co/qualcomm/Llama-v3.2-1B-Instruct/resolve/main/llama_v3_2_1b_q8.tflite" -o app/src/main/assets/models/model.tflite
+          mkdir -p app/src/main/assets/models/
+          curl -L -f "https://huggingface.co/qualcomm/Llama-v3.2-1B-Instruct/resolve/main/llama_v3_2_1b_q8.tflite" -o app/src/main/assets/models/model.tflite
 
-      - name: Setup JDK 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
@@ -31,7 +28,7 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Upload Sovereign APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Sovereign-Keyboard-Alpha
