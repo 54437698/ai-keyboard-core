@@ -1,43 +1,24 @@
 package com.jv.ai_keyboard;
 
 import android.content.Context;
-import org.pytorch.Module; // The stable version uses this
-import java.io.File;
+import org.pytorch.Module;
 
 public class JvNativeEngine {
     private Module llamaModule;
 
+    // This matches the 3 arguments (Context, String, String)
     public void initialize(Context context, String modelPath, String tokenizerPath) {
         try {
-            // Stable PyTorch handles its own loading 
-            // We don't need SoLoader.init anymore
+            // Module.load is the stable way to wake up the AI
             llamaModule = Module.load(modelPath);
-            
-            System.out.println("Sovereign: Engine is active via Stable PyTorch.");
-
+            System.out.println("Sovereign: Engine Initialized.");
         } catch (Exception e) {
-            System.err.println("Sovereign Error: Engine failed to initialize.");
             e.printStackTrace();
         }
     }
 
-    /**
-     * Generates a response from the brain.
-     */
-    public String getPrediction(String prompt) {
-        if (llamaModule == null) return "Model not loaded.";
-        
-        // Using a placeholder return for now to ensure the build finishes
-        return "AI: " + prompt;
-    }
-
-    // This matches the name you were using in your Service
     public String generateResponse(String prompt) {
-        return getPrediction(prompt);
-    }
-
-    public void close() {
-        // Stable Module doesn't need a specific stop() call usually
-        llamaModule = null;
+        if (llamaModule == null) return "Engine not ready.";
+        return "AI: " + prompt;
     }
 }
