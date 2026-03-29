@@ -12,13 +12,8 @@ android {
         minSdk 24
         targetSdk 34
         
-        externalNativeBuild {
-            cmake {
-                abiFilters "arm64-v8a"
-                arguments "-DANDROID_STL=c++_shared"
-            }
-        }
-
+        // Removed C++ abiFilters and arguments - we are 100% Java/Kotlin now
+        
         def rawBuildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "210"
         def buildInt = rawBuildNum.toInteger()
         
@@ -26,16 +21,12 @@ android {
         versionName "1.1.${buildInt}-alpha"
     }
 
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-            version "3.22.1+"
-        }
-    }
+    // CRITICAL: We deleted the entire externalNativeBuild { cmake { ... } } block here.
+    // This stops the compiler from looking for "litert" or running any C++ scripts.
 
     buildFeatures {
         buildConfig = true
-        prefab = true 
+        // prefab = true // No longer needed without C++
     }
 
     compileOptions {
@@ -60,12 +51,12 @@ android {
 
 repositories {
     google()
-    mavenCentral()
+    central()
     maven { url 'https://download.pytorch.org/maven' }
 }
 
 dependencies {
-    // We only need these two. They include fbjni/soloader automatically.
+    // The Stable Java-only path
     implementation 'org.pytorch:pytorch_android:2.1.0'
     implementation 'org.pytorch:pytorch_android_torchvision:2.1.0'
     
