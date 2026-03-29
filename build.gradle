@@ -60,9 +60,10 @@ android {
 }
 
 dependencies {
-    // Replace LiteRT with ExecuTorch
-    implementation 'org.pytorch:executorch-android:0.4.0' // Check for latest version
+    // Core ExecuTorch Runtime
+    implementation 'org.pytorch:executorch-android:1.1.0' 
     
-    // You'll likely need the Llama-specific extension if using their reference implementation
-    implementation 'org.pytorch:executorch-llama-jni:0.4.0'
+    // Facebook's JNI glue (Required for ExecuTorch)
+    implementation 'com.facebook.soloader:soloader:0.10.5'
+    implementation 'com.facebook.fbjni:fbjni:0.7.0'
 }
