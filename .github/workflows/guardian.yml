@@ -14,15 +14,19 @@ jobs:
       - name: Download ExecuTorch Llama Model
         run: |
           mkdir -p app/src/main/assets/models/
-          curl -L "https://pub-2fdef7a2969f432896661a396e749bc3.r2.dev/llama_v3_2_1b_q8.pte" -o app/src/main/assets/models/model.pte
-          curl -L "https://pub-2fdef7a2969f432896661a396e749bc3.r2.dev/tokenizer.bin" -o app/src/main/assets/models/tokenizer.bin
+          # Download the 8-bit quantized model (approx 800MB - fast & mobile friendly)
+          curl -L "https://huggingface.co/software-mansion/react-native-executorch-llama-3.2/resolve/main/llama-3.2-1B/llama3_2_1b_q4_0.pte" -o app/src/main/assets/models/model.pte
+          
+          # Download the tokenizer
+          curl -L "https://huggingface.co/software-mansion/react-native-executorch-llama-3.2/resolve/main/tokenizer.bin" -o app/src/main/assets/models/tokenizer.bin
 
       - name: Sovereign Guard
         run: |
           FILESIZE=$(stat -c%s "app/src/main/assets/models/model.pte")
           echo "Model size is $FILESIZE bytes"
+          # This time, we expect ~800MB. If it's less than 100MB, it's still failing.
           if [ $FILESIZE -lt 100000000 ]; then
-            echo "ERROR: Model file too small"
+            echo "ERROR: Model download failed again. Link might be restricted."
             exit 1
           fi
 
