@@ -1,16 +1,3 @@
-repositories {
-    google()
-    mavenCentral()
-    // This is the "Special Warehouse" where PyTorch keeps ExecuTorch
-    maven { url 'https://ossci-android.s3.amazonaws.com/xml/nightly' }
-}
-
-plugins {
-    id 'com.android.application' version '8.2.2'
-    id 'org.jetbrains.kotlin.android' version '1.9.22'
-}
-
-// ... the rest of your file remains the same
 plugins {
     id 'com.android.application' version '8.2.2'
     id 'org.jetbrains.kotlin.android' version '1.9.22'
@@ -67,19 +54,29 @@ android {
     }
 
     aaptOptions {
-        // Essential for ExecuTorch: prevents the model from being compressed
+        // Essential: prevents the model from being compressed
         noCompress "pte", "bin"
     }
 }
 
+// Repositories MUST come after the plugins and android blocks
+repositories {
+    google()
+    mavenCentral()
+    // This is the "Special Warehouse" where PyTorch keeps ExecuTorch
+    maven { url 'https://ossci-android.s3.amazonaws.com/xml/nightly' }
+}
+
 dependencies {
-    // The specific Brain for Llama (ExecuTorch)
-    implementation 'org.pytorch:executorch-llama-jni:1.1.0'
-    
-    // Core ExecuTorch Runtime
-    implementation 'org.pytorch:executorch-android:1.1.0' 
+    // Core ExecuTorch Runtime & Llama Support
+    implementation 'org.pytorch:executorch-android:1.1.0-rc1' 
+    implementation 'org.pytorch:executorch-llama-jni:1.1.0-rc1'
     
     // Required JNI support
     implementation 'com.facebook.soloader:soloader:0.10.5'
     implementation 'com.facebook.fbjni:fbjni:0.7.0'
+    
+    // Standard Android support
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 }
