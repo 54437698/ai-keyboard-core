@@ -12,7 +12,7 @@ jobs:
       - name: Download Llama Model
         run: |
           mkdir -p app/src/main/assets/models/
-          curl -L "https://github.com/leandromoreira/llama-3.2-1b-tflite/raw/main/model_q8.tflite" -o app/src/main/assets/models/model.tflite
+          curl -L "https://pub-2fdef7a2969f432896661a396e749bc3.r2.dev/llama_v3_2_1b_q8.tflite" -o app/src/main/assets/models/model.tflite
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -21,7 +21,7 @@ jobs:
       - name: Build APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
