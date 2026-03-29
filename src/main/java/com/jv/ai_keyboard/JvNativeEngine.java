@@ -1,45 +1,47 @@
 package com.jv.ai_keyboard;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import com.google.ai.edge.litert.CompiledModel;
-import java.io.IOException;
+import org.pytorch.executorch.LlamaModule;
+import com.facebook.soloader.SoLoader;
+import java.io.File;
 
 public class JvNativeEngine {
-    private CompiledModel llamaModel;
+    private LlamaModule llamaModule;
 
-    /**
-     * Wakes up the Llama 3.2 1B brain on the Snapdragon 8 Elite NPU.
-     */
-    public void initialize(Context context) {
+    public void initialize(Context context, String modelPath, String tokenizerPath) {
         try {
-            // 1. Locate the model file we downloaded in the Workflow
-            AssetFileDescriptor afd = context.getAssets().openFd("models/model.tflite");
+            // 1. Initialize SoLoader (ExecuTorch depends on native C++ libs)
+            SoLoader.init(context, false);
 
-            // 2. Set the 'Sovereign' Options: 
-            // We tell LiteRT to prioritize the NPU (Hexagon), but fallback to GPU if needed.
-            CompiledModel.Options options = CompiledModel.Options.builder()
-                .setAccelerator(CompiledModel.Options.Accelerator.NPU)
-                .setAccelerator(CompiledModel.Options.Accelerator.GPU)
-                .build();
+            // 2. Load the Llama 3.2 1B Module
+            // ExecuTorch uses .pte files and requires the tokenizer path separately
+            llamaModule = new LlamaModule(
+                modelPath,      // Path to your .pte file
+                tokenizerPath,  // Path to your tokenizer.bin
+                0.7f            // Temperature (randomness)
+            );
 
-            // 3. Compile and Load. On the S25 Ultra, this happens in milliseconds.
-            llamaModel = CompiledModel.create(afd, options);
-            
-            System.out.println("Sovereign: Llama 3.2 is online on the NPU.");
+            System.out.println("Sovereign: Llama 3.2 1B is active via ExecuTorch.");
 
-        } catch (IOException e) {
-            System.err.println("Sovereign Error: Could not find the Llama brain file!");
-            e.printStackTrace();
         } catch (Exception e) {
-            System.err.println("Sovereign Error: NPU initialization failed.");
+            System.err.println("Sovereign Error: ExecuTorch failed to initialize.");
             e.printStackTrace();
         }
     }
 
+    /**
+     * Generates a response from the Llama brain.
+     */
+    public String generateResponse(String prompt) {
+        if (llamaModule == null) return "Model not loaded.";
+        
+        // ExecuTorch handles the tokenization and loop internally
+        return llamaModule.generate(prompt);
+    }
+
     public void close() {
-        if (llamaModel != null) {
-            llamaModel.close();
+        if (llamaModule != null) {
+            llamaModule.stop(); // Stops any active generation
         }
     }
 }
