@@ -1,3 +1,16 @@
+repositories {
+    google()
+    mavenCentral()
+    // This is the "Special Warehouse" where PyTorch keeps ExecuTorch
+    maven { url 'https://ossci-android.s3.amazonaws.com/xml/nightly' }
+}
+
+plugins {
+    id 'com.android.application' version '8.2.2'
+    id 'org.jetbrains.kotlin.android' version '1.9.22'
+}
+
+// ... the rest of your file remains the same
 plugins {
     id 'com.android.application' version '8.2.2'
     id 'org.jetbrains.kotlin.android' version '1.9.22'
