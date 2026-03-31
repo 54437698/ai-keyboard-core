@@ -51,7 +51,7 @@ android {
 
 repositories {
     google()
-    central()
+    mavenCentral() // Fix: Added 'maven' prefix
     maven { url 'https://download.pytorch.org/maven' }
 }
 
