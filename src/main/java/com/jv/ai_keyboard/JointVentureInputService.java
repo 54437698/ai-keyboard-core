@@ -38,18 +38,17 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         if (ic == null) return;
 
         switch(primaryCode) {
-            case Keyboard.KEYCODE_DELETE:
+            case -5: // Matches your XML: <Key android:codes="-5" android:keyLabel="⌫" />
                 ic.deleteSurroundingText(1, 0);
                 break;
 
-            case Keyboard.KEYCODE_DONE:
-                // FIX: Send a "Hard" Enter key event. 
-                // This forces browsers to 'Go' or 'Search' instead of just making a new line.
+            case 10: // Matches your XML: <Key android:codes="10" android:keyLabel="↵" />
+                // This sends the "Go/Search" command to Firefox
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
                 break;
 
-            case -2: // This is the standard code for the "123" / Symbol switch
+            case -2: // Matches your XML: <Key android:codes="-2" android:keyLabel="\?123" />
                 if (kv.getKeyboard() == mKeyboard) {
                     kv.setKeyboard(mSymbols);
                 } else {
@@ -57,12 +56,13 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 }
                 break;
 
-            case -3: // Usually the code for the Microphone/Voice key
-                // For now, let's make it a 'Space' until we add Voice intent
-                ic.commitText(" ", 1);
+            case 999: // Matches your XML: <Key android:codes="999" android:keyLabel="G" />
+                // Let's make 'G' the Smiley button for now!
+                ic.commitText("😂", 1);
                 break;
 
             default:
+                // Types everything else (a, b, c, 1, 2, 3...)
                 char code = (char) primaryCode;
                 ic.commitText(String.valueOf(code), 1);
         }
