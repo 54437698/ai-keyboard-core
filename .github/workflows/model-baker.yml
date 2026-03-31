@@ -39,17 +39,19 @@ jobs:
 
       - name: Bake the 4096-Token Brain
         env:
-          # Uses your 'Hugging_API' secret from Screenshot (135)
           HF_TOKEN: ${{ secrets.Hugging_API }} 
         run: |
-          # Must re-activate the venv in every 'run' block
+          # 1. Activate the environment again
           source $GITHUB_WORKSPACE/venv/bin/activate
+          
+          # 2. MANUALLY add the venv to the Path so it finds 'huggingface-cli'
+          export PATH=$GITHUB_WORKSPACE/venv/bin:$PATH
           export TMPDIR=$GITHUB_WORKSPACE/pip_tmp
           
-          # 1. Download Llama 3.2 1B
+          # 3. Now it will find the command!
           huggingface-cli download meta-llama/Llama-3.2-1B-Instruct --token $HF_TOKEN --local-dir model_dir
           
-          # 2. Export (The 4096 token "Brain")
+          # 4. Export
           python -m executorch.examples.models.llama.export_llama \
             --checkpoint model_dir/model.safetensors \
             --params model_dir/config.json \
@@ -57,7 +59,7 @@ jobs:
             --quantize_kv_cache int4 \
             --output_name llama_brain_4096.pte
 
-          # 3. Final cleanup to ensure the upload step has room
+          # 5. Cleanup
           rm -rf model_dir $GITHUB_WORKSPACE/pip_cache
 
       - name: Upload Final Brain
