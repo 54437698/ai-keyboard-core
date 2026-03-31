@@ -9,15 +9,15 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
-    
+
     // --- State Variables ---
     private JvNativeEngine npuEngine = new JvNativeEngine();
     private KeyboardView kv;
     private Keyboard mKeyboard;
     private Keyboard mSymbols;
-    
+
     // Shift & Caps Lock Logic
-    private boolean isCaps = false; 
+    private boolean isCaps = false;
     private boolean mCapsLock = false;
     private long mLastShiftTime = 0;
     private static final long DOUBLE_TAP_TIMEOUT = 300; // milliseconds
@@ -42,37 +42,16 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection ic = getCurrentInputConnection();
-        if (ic == null) return;
+        if (ic == null || primaryCode == 0) return;
 
-        switch(primaryCode) {
-            case -1: // The SHIFT Key logic
-                long now = System.currentTimeMillis();
-                
-                if (mCapsLock) {
-                    // If already locked, turn everything off
-                    mCapsLock = false;
-                    isCaps = false;
-                } else if (isCaps) {
-                    // If shifted (single tap), check if this is a double tap
-                    if (now - mLastShiftTime < DOUBLE_TAP_TIMEOUT) {
-                        mCapsLock = true;
-                        isCaps = true;
-                    } else {
-                        // Too slow for double tap? Turn it off
-                        isCaps = false;
-                    }
-                } else {
-                    // First tap: turn on single-tap shift
-                    isCaps = true;
-                }
-
-                mLastShiftTime = now;
-                mKeyboard.setShifted(isCaps);
-                kv.invalidateAllKeys();
+        switch (primaryCode) {
+            case -1: // SHIFT
+                handleShiftLogic();
                 break;
 
             case -5: // Backspace
-                ic.deleteSurroundingText(1, 0);
+                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+                ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
                 break;
 
             case 10: // Enter
@@ -81,27 +60,22 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 break;
 
             case -2: // Symbols toggle
-                if (kv.getKeyboard() == mKeyboard) {
-                    kv.setKeyboard(mSymbols);
-                } else {
-                    kv.setKeyboard(mKeyboard);
-                }
+                toggleKeyboardLayout();
                 break;
 
-            case 999: // Smiley shortcut
+            case 999: // Smiley
                 ic.commitText("😂", 1);
                 break;
 
             default:
                 char code = (char) primaryCode;
-                // Handle uppercase transformation
                 if (Character.isLetter(code) && isCaps) {
                     code = Character.toUpperCase(code);
                 }
+
                 ic.commitText(String.valueOf(code), 1);
-                
-                // AUTO-LOWERCASE LOGIC
-                // If we are in single-tap shift (not Caps Lock), drop back down
+
+                // Auto-lowercase if not in Caps Lock
                 if (isCaps && !mCapsLock) {
                     isCaps = false;
                     mKeyboard.setShifted(false);
@@ -110,12 +84,32 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         }
     }
 
-    // Required overrides for OnKeyboardActionListener
+    private void handleShiftLogic() {
+        long now = System.currentTimeMillis();
+
+        if (mCapsLock) {
+            mCapsLock = false;
+            isCaps = false;
+        } else if (isCaps && (now - mLastShiftTime < DOUBLE_TAP_TIMEOUT)) {
+            mCapsLock = true;
+            isCaps = true;
+        } else {
+            isCaps = !isCaps;
+        }
+
+        mLastShiftTime = now;
+        mKeyboard.setShifted(isCaps);
+        kv.invalidateAllKeys();
+    }
+
+    private void toggleKeyboardLayout() {
+        if (kv.getKeyboard() == mKeyboard) {
+            kv.setKeyboard(mSymbols);
+        } else {
+            kv.setKeyboard(mKeyboard);
+        }
+    }
+
+    // --- Required Interface Overrides ---
     @Override public void onPress(int primaryCode) {}
-    @Override public void onRelease(int primaryCode) {}
-    @Override public void onText(CharSequence text) {}
-    @Override public void swipeLeft() {}
-    @Override public void swipeRight() {}
-    @Override public void swipeDown() {} // ADD THIS
-    @Override public void swipeUp() {}   // ADD THIS
-}
+    @Override public void onRelease
