@@ -32,23 +32,30 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         return mInputView;
     }
 
+    private boolean isCaps = false; // Add this variable at the very top of your class (above onCreate)
+
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
 
         switch(primaryCode) {
-            case -5: // Matches your XML: <Key android:codes="-5" android:keyLabel="⌫" />
+            case -1: // The SHIFT Key
+                isCaps = !isCaps; // Switch between true and false
+                mKeyboard.setShifted(isCaps); // Tells the UI to look "Shifted"
+                kv.invalidateAllKeys(); // Forces the keyboard to redraw the labels
+                break;
+
+            case -5: // Backspace
                 ic.deleteSurroundingText(1, 0);
                 break;
 
-            case 10: // Matches your XML: <Key android:codes="10" android:keyLabel="↵" />
-                // This sends the "Go/Search" command to Firefox
+            case 10: // Enter
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
                 break;
 
-            case -2: // Matches your XML: <Key android:codes="-2" android:keyLabel="\?123" />
+            case -2: // Symbols
                 if (kv.getKeyboard() == mKeyboard) {
                     kv.setKeyboard(mSymbols);
                 } else {
@@ -56,15 +63,26 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 }
                 break;
 
-            case 999: // Matches your XML: <Key android:codes="999" android:keyLabel="G" />
-                // Let's make 'G' the Smiley button for now!
+            case 999: // Smiley
                 ic.commitText("😂", 1);
                 break;
 
             default:
-                // Types everything else (a, b, c, 1, 2, 3...)
                 char code = (char) primaryCode;
+                // If isCaps is true, convert the letter to Uppercase!
+                if (Character.isLetter(code) && isCaps) {
+                    code = Character.toUpperCase(code);
+                }
                 ic.commitText(String.valueOf(code), 1);
+                
+                // OPTIONAL: Turn off caps after one letter (Auto-lowercase)
+                /*
+                if (isCaps) {
+                    isCaps = false;
+                    mKeyboard.setShifted(false);
+                    kv.invalidateAllKeys();
+                }
+                */
         }
     }
 
