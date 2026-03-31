@@ -5,37 +5,43 @@ on:
 
 jobs:
   bake:
-    # Pro Tip: Using a larger runner with more RAM (8-core/32GB)
-    # This prevents the memory-heavy 4096-context export from crashing.
-    runs-on: ubuntu-latest-8-core
+    # Changed back to standard to use your free Pro minutes
+    runs-on: ubuntu-latest 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install AI Tools (CPU Version)
+      - name: Maximize Disk & RAM
+        uses: easimon/maximize-build-space@v10
+        with:
+          swap-size-mb: 10240 # Creates 10GB of virtual RAM
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+
+      - name: Install AI Tools (CPU Only)
         run: |
-          # We force CPU versions to avoid the 5GB CUDA download you hit earlier
+          # The CPU version is smaller and won't eat your disk space
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install torchao executorch llama-models huggingface_hub
 
       - name: Bake the 4096-Token Brain
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_TOKEN: ${{ secrets.Hugging_API }} # Using the name from your Screenshot 135
         run: |
-          # 1. Download Llama 3.2 1B
-          huggingface-cli download meta-llama/Llama-3.2-1B-Instruct \
-            --token $HF_TOKEN \
-            --local-dir model_dir
+          # 1. Download
+          huggingface-cli download meta-llama/Llama-3.2-1B-Instruct --token $HF_TOKEN --local-dir model_dir
           
-          # 2. Export to .pte
-          # Fixed the module path to the standard 2026 executorch llm export tool
-          python -m executorch.extension.llm.export.export_lib \
-            --model_type llama3_2 \
+          # 2. Export (The memory-heavy part)
+          python -m executorch.examples.models.llama.export_llama \
             --checkpoint model_dir/model.safetensors \
             --params model_dir/config.json \
             --max_seq_length 4096 \
             --quantize_kv_cache int4 \
             --output_name llama_brain_4096.pte
+
+          # 3. Cleanup model_dir to make room for the artifact
+          rm -rf model_dir
 
       - name: Upload Final Brain
         uses: actions/upload-artifact@v4
