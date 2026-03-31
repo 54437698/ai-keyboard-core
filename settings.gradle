@@ -8,11 +8,11 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+   dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
-        // FIX: The official PyTorch stable repository
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url 'https://download.pytorch.org/maven' }
     }
 }
