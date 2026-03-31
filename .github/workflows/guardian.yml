@@ -4,6 +4,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# Fixes the Node.js 24 deprecation warnings for 2026
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,8 +18,7 @@ jobs:
       - name: Create Placeholder Model
         run: |
           mkdir -p app/src/main/assets/models/
-          # We are creating a fake file just to let the build finish.
-          # This is the 'Emergency Bypass' to get your APK after 2 days of failure.
+          # Emergency Bypass: Fake file to satisfy the compiler
           head -c 1M </dev/urandom > app/src/main/assets/models/model.pte
           echo "Placeholder Tokenizer" > app/src/main/assets/models/tokenizer.bin
 
@@ -23,7 +26,6 @@ jobs:
         run: |
           FILESIZE=$(stat -c%s "app/src/main/assets/models/model.pte")
           echo "Bypassing with Placeholder. Size: $FILESIZE"
-          # We just need to make sure the file exists so the compiler doesn't cry.
           if [ ! -f "app/src/main/assets/models/model.pte" ]; then
             exit 1
           fi
@@ -43,4 +45,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Sovereign-Keyboard-Alpha
-          path: app/build/outputs/apk/debug/app-debug.apk
+          # Use wildcards to find the APK wherever Gradle put it
+          path: "**/build/outputs/apk/debug/*.apk" 
+          # This ensures the job fails if no APK is found
+          if-no-files-found: error
