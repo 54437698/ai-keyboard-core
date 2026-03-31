@@ -1,31 +1,36 @@
 name: 🧠 Llama 4096 Brain Baker
 
 on:
-  workflow_dispatch: # This puts the "Run" button in your Actions tab
+  workflow_dispatch:
 
 jobs:
   bake:
-    runs-on: ubuntu-latest
+    # Pro Tip: Using a larger runner with more RAM (8-core/32GB)
+    # This prevents the memory-heavy 4096-context export from crashing.
+    runs-on: ubuntu-latest-8-core
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install AI Tools
+      - name: Install AI Tools (CPU Version)
         run: |
-          pip install torch torchao executorch llama-models huggingface_hub
+          # We force CPU versions to avoid the 5GB CUDA download you hit earlier
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install torchao executorch llama-models huggingface_hub
 
       - name: Bake the 4096-Token Brain
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # 1. Login to Hugging Face
-          huggingface-cli login --token $HF_TOKEN
+          # 1. Download Llama 3.2 1B
+          huggingface-cli download meta-llama/Llama-3.2-1B-Instruct \
+            --token $HF_TOKEN \
+            --local-dir model_dir
           
-          # 2. Download Llama 3.2 1B (The Instruct version for smarter typing)
-          huggingface-cli download meta-llama/Llama-3.2-1B-Instruct --local-dir model_dir
-          
-          # 3. Export to .pte with 4096 context + 4-bit battery saver
-          python -m executorch.extension.llm.export.export_llm \
+          # 2. Export to .pte
+          # Fixed the module path to the standard 2026 executorch llm export tool
+          python -m executorch.extension.llm.export.export_lib \
+            --model_type llama3_2 \
             --checkpoint model_dir/model.safetensors \
             --params model_dir/config.json \
             --max_seq_length 4096 \
@@ -35,5 +40,5 @@ jobs:
       - name: Upload Final Brain
         uses: actions/upload-artifact@v4
         with:
-          name: baked-llama-brain
+          name: Llama-4096-PTE
           path: llama_brain_4096.pte
