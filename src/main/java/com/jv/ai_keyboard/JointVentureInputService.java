@@ -9,18 +9,17 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
-
+    
     // --- State Variables ---
     private JvNativeEngine npuEngine = new JvNativeEngine();
     private KeyboardView kv;
     private Keyboard mKeyboard;
     private Keyboard mSymbols;
-
-    // Shift & Caps Lock Logic
-    private boolean isCaps = false;
+    
+    private boolean isCaps = false; 
     private boolean mCapsLock = false;
     private long mLastShiftTime = 0;
-    private static final long DOUBLE_TAP_TIMEOUT = 300; // milliseconds
+    private static final long DOUBLE_TAP_TIMEOUT = 300; 
 
     @Override
     public void onCreate() {
@@ -44,26 +43,26 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         InputConnection ic = getCurrentInputConnection();
         if (ic == null || primaryCode == 0) return;
 
-        switch (primaryCode) {
-            case -1: // SHIFT
+        switch(primaryCode) {
+            case -1: 
                 handleShiftLogic();
                 break;
 
-            case -5: // Backspace
+            case -5: 
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
                 break;
 
-            case 10: // Enter
+            case 10: 
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
                 break;
 
-            case -2: // Symbols toggle
+            case -2: 
                 toggleKeyboardLayout();
                 break;
 
-            case 999: // Smiley
+            case 999: 
                 ic.commitText("😂", 1);
                 break;
 
@@ -72,10 +71,8 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 if (Character.isLetter(code) && isCaps) {
                     code = Character.toUpperCase(code);
                 }
-
                 ic.commitText(String.valueOf(code), 1);
-
-                // Auto-lowercase if not in Caps Lock
+                
                 if (isCaps && !mCapsLock) {
                     isCaps = false;
                     mKeyboard.setShifted(false);
@@ -86,7 +83,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     private void handleShiftLogic() {
         long now = System.currentTimeMillis();
-
         if (mCapsLock) {
             mCapsLock = false;
             isCaps = false;
@@ -96,7 +92,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         } else {
             isCaps = !isCaps;
         }
-
         mLastShiftTime = now;
         mKeyboard.setShifted(isCaps);
         kv.invalidateAllKeys();
@@ -112,4 +107,10 @@ public class JointVentureInputService extends InputMethodService implements Keyb
 
     // --- Required Interface Overrides ---
     @Override public void onPress(int primaryCode) {}
-    @Override public void onRelease
+    @Override public void onRelease(int primaryCode) {}
+    @Override public void onText(CharSequence text) {}
+    @Override public void swipeLeft() {}
+    @Override public void swipeRight() {}
+    @Override public void swipeDown() {} 
+    @Override public void swipeUp() {}   
+}
