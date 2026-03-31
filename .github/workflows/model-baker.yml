@@ -5,7 +5,8 @@ on:
 
 jobs:
   bake:
-    runs-on: ubuntu-latest
+    # Using standard runner to stay within your 3,000 free Pro minutes
+    runs-on: ubuntu-latest 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -17,29 +18,38 @@ jobs:
           remove-dotnet: 'true'
           remove-android: 'true'
           remove-haskell: 'true'
-          remove-codeql: 'true' # Added this for extra space
-          remove-docker-images: 'true' # Added this for extra space
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
 
-      - name: Install AI Tools (CPU Only)
+      - name: Relocate Python & Install Tools
         run: |
-          # Create a temp folder on the big 21GB drive
-          mkdir -p ./.pip_tmp
-          # Force pip to use the big drive for caching and temp files
-          export TMPDIR=$GITHUB_WORKSPACE/.pip_tmp
+          # 1. Create the Virtual Env on the BIG 21GB drive
+          python3 -m venv $GITHUB_WORKSPACE/venv
           
-          pip install --cache-dir ./.pip_cache torch --index-url https://download.pytorch.org/whl/cpu
-          pip install --cache-dir ./.pip_cache torchao executorch llama-models huggingface_hub
+          # 2. Activate it (All 'pip install' commands now stay on the big drive)
+          source $GITHUB_WORKSPACE/venv/bin/activate
+          
+          # 3. Use the big drive for pip's temporary download "gumph"
+          mkdir -p $GITHUB_WORKSPACE/pip_tmp
+          export TMPDIR=$GITHUB_WORKSPACE/pip_tmp
+          
+          # 4. Install tools (CPU versions only to save space)
+          pip install --cache-dir $GITHUB_WORKSPACE/pip_cache torch --index-url https://download.pytorch.org/whl/cpu
+          pip install --cache-dir $GITHUB_WORKSPACE/pip_cache torchao executorch llama-models huggingface_hub
 
       - name: Bake the 4096-Token Brain
         env:
+          # Uses your 'Hugging_API' secret from Screenshot (135)
           HF_TOKEN: ${{ secrets.Hugging_API }} 
         run: |
-          export TMPDIR=$GITHUB_WORKSPACE/.pip_tmp
+          # Must re-activate the venv in every 'run' block
+          source $GITHUB_WORKSPACE/venv/bin/activate
+          export TMPDIR=$GITHUB_WORKSPACE/pip_tmp
           
-          # 1. Download
+          # 1. Download Llama 3.2 1B
           huggingface-cli download meta-llama/Llama-3.2-1B-Instruct --token $HF_TOKEN --local-dir model_dir
           
-          # 2. Export
+          # 2. Export (The 4096 token "Brain")
           python -m executorch.examples.models.llama.export_llama \
             --checkpoint model_dir/model.safetensors \
             --params model_dir/config.json \
@@ -47,8 +57,8 @@ jobs:
             --quantize_kv_cache int4 \
             --output_name llama_brain_4096.pte
 
-          # 3. Cleanup
-          rm -rf model_dir ./.pip_tmp ./.pip_cache
+          # 3. Final cleanup to ensure the upload step has room
+          rm -rf model_dir $GITHUB_WORKSPACE/pip_cache
 
       - name: Upload Final Brain
         uses: actions/upload-artifact@v4
