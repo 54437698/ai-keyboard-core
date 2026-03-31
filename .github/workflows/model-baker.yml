@@ -41,17 +41,20 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.Hugging_API }} 
         run: |
-          # 1. Activate the environment again
+          # 1. Activate the environment
           source $GITHUB_WORKSPACE/venv/bin/activate
           
-          # 2. MANUALLY add the venv to the Path so it finds 'huggingface-cli'
+          # 2. Tell the runner exactly where the 'huggingface-cli' is
           export PATH=$GITHUB_WORKSPACE/venv/bin:$PATH
           export TMPDIR=$GITHUB_WORKSPACE/pip_tmp
           
-          # 3. Now it will find the command!
+          # 3. Test it (This should show the version instead of an error)
+          huggingface-cli --version
+          
+          # 4. Download Llama 3.2 1B
           huggingface-cli download meta-llama/Llama-3.2-1B-Instruct --token $HF_TOKEN --local-dir model_dir
           
-          # 4. Export
+          # 5. Export (The 4096 "Brain")
           python -m executorch.examples.models.llama.export_llama \
             --checkpoint model_dir/model.safetensors \
             --params model_dir/config.json \
@@ -59,7 +62,7 @@ jobs:
             --quantize_kv_cache int4 \
             --output_name llama_brain_4096.pte
 
-          # 5. Cleanup
+          # 6. Final Cleanup
           rm -rf model_dir $GITHUB_WORKSPACE/pip_cache
 
       - name: Upload Final Brain
