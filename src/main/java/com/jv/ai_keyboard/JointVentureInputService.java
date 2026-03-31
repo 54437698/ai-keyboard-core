@@ -116,4 +116,6 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     @Override public void onText(CharSequence text) {}
     @Override public void swipeLeft() {}
     @Override public void swipeRight() {}
+    @Override public void swipeDown() {} // ADD THIS
+    @Override public void swipeUp() {}   // ADD THIS
 }
