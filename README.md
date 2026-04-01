@@ -1,4 +1,4 @@
-# 🧠 AI LLM Keyboard: Joint Venture Core
+# NPU 🧠 AI LLM Keyboard: Joint Venture Core
 **Architects:** [JUSTIN BOOTH] & Gemini AI (The "Mastermind" Partnership)
 **Status:** Android Studio Nuked 🛡️ | GitHub-First Protocol Active 🚀
 **Hardware Target:** Qualcomm Hexagon NPU / DSP (2026)
