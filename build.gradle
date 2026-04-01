@@ -51,8 +51,10 @@ android {
 
 repositories {
     google()
-    mavenCentral() // Fix: Added 'maven' prefix
-    maven { url 'https://download.pytorch.org/maven' }
+    mavenCentral()
+    maven { url 'https://ossci-android.s3.amazonaws.com/executorch/release/1.1.0' } // Direct link to ExecuTorch AARs
+}
+
 dependencies {
     // 🧠 The ExecuTorch "Brain" Runner
     implementation("org.pytorch:executorch-android:1.1.0")
