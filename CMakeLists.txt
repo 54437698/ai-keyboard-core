@@ -1,21 +1,11 @@
 cmake_minimum_required(VERSION 3.22.1)
-project("jv_npu_engine")
+project("jv_ai_keyboard")
 
-# 1. Tell CMake where the ExecuTorch headers are (from the Gradle build)
-# Usually found in the exploded AAR directory
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include) 
+# This tells the compiler to take jv_npu_engine.cpp and turn it into a library
+add_library(jv_npu_engine SHARED jv_npu_engine.cpp)
 
-# 2. Define your engine
-add_library(jv_npu_engine SHARED core/npu_pipeline.cpp)
-
-# 3. Find the Android logging library
+# This adds the Android logging library so we can see Llama's output in the logs
 find_library(log-lib log)
 
-# 4. Link everything
-target_link_libraries(
-    jv_npu_engine
-    ${log-lib}
-    # These names must match the .so files provided by the ExecuTorch AAR
-    executorch
-    executorch_nnapi_backend 
-)
+# This welds the library and the logger together
+target_link_libraries(jv_npu_engine ${log-lib})
