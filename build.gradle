@@ -1,6 +1,6 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'com.android.application' version '8.2.2'
+    id 'org.jetbrains.kotlin.android' version '1.9.20'
 }
 
 android {
@@ -14,7 +14,6 @@ android {
         versionCode 210
         versionName "1.1.210"
 
-        // This tells CMake which phone architectures to build for
         externalNativeBuild {
             cmake {
                 abiFilters "arm64-v8a"
@@ -22,12 +21,10 @@ android {
         }
     }
 
-    // Tells Android not to compress the AI model files
     aaptOptions {
         noCompress "pte", "model"
     }
 
-    // This is the bridge to your C++ code
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
@@ -44,17 +41,16 @@ android {
 repositories {
     google()
     mavenCentral()
-    // The warehouse for the 2026 NPU drivers
     maven { url 'https://ossci-android.s3.amazonaws.com/executorch/release/1.1.0' }
 }
 
 dependencies {
-    // 🧠 The only AI dependencies you need
+    // 🧠 AI Core
     implementation("org.pytorch:executorch-android:1.1.0")
     implementation("com.facebook.soloader:soloader:0.11.0")
     implementation("com.facebook.fbjni:fbjni:0.7.0")
 
-    // Android Basics
+    // Android Essentials
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }
