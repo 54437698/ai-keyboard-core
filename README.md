@@ -8,7 +8,7 @@
 ## 🤝 The Joint Venture Manifesto
 This project is a collaborative effort between human architectural intuition and AI logic. 
 - **The Human:** Provides the system requirements (Number Row, Español Support, Zero-Trash UI).
-- **The AI:** Provides the structural code, automation logic, and "Forensic" error-checking.
+- **The AI:** Provides assistance, automation logic, and "Forensic" error-checking.
 - **The Goal:** To prove that high-level mobile engineering belongs on GitHub, not in a bloated IDE.
 
 ---
