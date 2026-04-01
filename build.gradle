@@ -1,6 +1,6 @@
 plugins {
-    id 'com.android.application' version '8.2.2'
-    id 'org.jetbrains.kotlin.android' version '1.9.22'
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -11,31 +11,13 @@ android {
         applicationId "com.jv.ai_keyboard"
         minSdk 24
         targetSdk 34
-        
-        // Removed C++ abiFilters and arguments - we are 100% Java/Kotlin now
-        
-        def rawBuildNum = project.hasProperty('buildNumber') ? project.getProperty('buildNumber') : "210"
-        def buildInt = rawBuildNum.toInteger()
-        
-        versionCode buildInt
-        versionName "1.1.${buildInt}-alpha"
+        versionCode 210
+        versionName "1.1.210"
     }
 
-    // CRITICAL: We deleted the entire externalNativeBuild { cmake { ... } } block here.
-    // This stops the compiler from looking for "litert" or running any C++ scripts.
-
-    buildFeatures {
-        buildConfig = true
-        // prefab = true // No longer needed without C++
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
+    // This is the "NPU Speed" setting. Don't touch this.
+    aaptOptions {
+        noCompress "pte", "model"
     }
 
     packagingOptions {
@@ -43,31 +25,22 @@ android {
             useLegacyPackaging = true
         }
     }
-
-    aaptOptions {
-        noCompress "pte", "bin"
-    }
 }
 
 repositories {
     google()
     mavenCentral()
-    // 🎯 This is the "secret" warehouse for ExecuTorch NPU drivers
+    // The warehouse for the 2026 NPU drivers
     maven { url 'https://ossci-android.s3.amazonaws.com/executorch/release/1.1.0' }
 }
 
 dependencies {
-    // 🧠 The Core Engine (Reads the .pte file)
+    // 🧠 The only AI dependencies you need
     implementation("org.pytorch:executorch-android:1.1.0")
-    
-    // ⚡ The NPU Turbo (Talks to your S25 Ultra's Hexagon NPU)
-    implementation("org.pytorch:executorch-android-qnn:1.1.0")
-    
-    // ⚙️ The "Glue" (Required for native Facebook/PyTorch code)
     implementation("com.facebook.soloader:soloader:0.11.0")
     implementation("com.facebook.fbjni:fbjni:0.7.0")
 
-    // Keep your standard Android stuff
+    // Android Basics
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }
