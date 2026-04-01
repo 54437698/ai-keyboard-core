@@ -36,11 +36,7 @@ android {
     }
 }
 
-repositories {
-    google()
-    mavenCentral()
-    maven { url 'https://ossci-android.s3.amazonaws.com/executorch/release/1.1.0' }
-}
+// NOTE: Repositories are now handled by settings.gradle to avoid conflicts
 
 dependencies {
     implementation("org.pytorch:executorch-android:1.1.0")
