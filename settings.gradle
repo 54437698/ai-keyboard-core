@@ -4,11 +4,6 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-    // ADD THIS BLOCK:
-    plugins {
-        id 'com.android.application' version '8.2.2'
-        id 'com.android.library' version '8.2.2'
-    }
 }
 
 dependencyResolutionManagement {
@@ -16,9 +11,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://download.pytorch.org/maven' }
+        maven { url 'https://ossci-android.s3.amazonaws.com/executorch/release/1.1.0' }
     }
 }
 
 rootProject.name = "ai-keyboard-core"
-include ':app'
+// DO NOT include ':app' here since everything is in the root
