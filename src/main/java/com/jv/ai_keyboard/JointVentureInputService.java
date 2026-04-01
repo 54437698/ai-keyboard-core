@@ -1,16 +1,16 @@
 package com.jv.ai_keyboard;
 
+import java.io.File;
+import android.util.Log;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.view.View;
 import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
     
-    // --- State Variables ---
     private JvNativeEngine npuEngine = new JvNativeEngine();
     private KeyboardView kv;
     private Keyboard mKeyboard;
@@ -24,7 +24,24 @@ public class JointVentureInputService extends InputMethodService implements Keyb
     @Override
     public void onCreate() {
         super.onCreate();
-        npuEngine.initialize(this, "models/model.pte", "models/tokenizer.bin");
+        
+        final JointVentureInputService serviceContext = this;
+
+        // Boot the Brain in the background to avoid UI lag
+        new Thread(() -> {
+            try {
+                File modelFile = new File(serviceContext.getExternalFilesDir(null), "model.pte");
+                if (modelFile.exists()) {
+                    npuEngine.initialize(serviceContext, modelFile.getAbsolutePath(), "tokenizer.bin");
+                    Log.i("JV_AI", "NPU Engine Warm and Ready.");
+                } else {
+                    Log.w("JV_AI", "Model file not found. Running in standard mode.");
+                }
+            } catch (Exception e) {
+                Log.e("JV_AI", "NPU Boot Failure", e);
+            }
+        }).start();
+
         mKeyboard = new Keyboard(this, R.xml.qwerty);
         mSymbols = new Keyboard(this, R.xml.symbols);
     }
@@ -47,25 +64,20 @@ public class JointVentureInputService extends InputMethodService implements Keyb
             case -1: 
                 handleShiftLogic();
                 break;
-
             case -5: 
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
                 break;
-
             case 10: 
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
                 break;
-
             case -2: 
                 toggleKeyboardLayout();
                 break;
-
             case 999: 
                 ic.commitText("😂", 1);
                 break;
-
             default:
                 char code = (char) primaryCode;
                 if (Character.isLetter(code) && isCaps) {
@@ -73,6 +85,13 @@ public class JointVentureInputService extends InputMethodService implements Keyb
                 }
                 ic.commitText(String.valueOf(code), 1);
                 
+                // AI TRIGGER: Prediction happens in the background
+                final String context = ic.getTextBeforeCursor(20, 0).toString();
+                new Thread(() -> {
+                    String suggestion = npuEngine.getPrediction(context);
+                    if (suggestion != null) Log.d("JV_AI", "Llama: " + suggestion);
+                }).start();
+
                 if (isCaps && !mCapsLock) {
                     isCaps = false;
                     mKeyboard.setShifted(false);
@@ -105,7 +124,7 @@ public class JointVentureInputService extends InputMethodService implements Keyb
         }
     }
 
-    // --- Required Interface Overrides ---
+    // Required Overrides
     @Override public void onPress(int primaryCode) {}
     @Override public void onRelease(int primaryCode) {}
     @Override public void onText(CharSequence text) {}
