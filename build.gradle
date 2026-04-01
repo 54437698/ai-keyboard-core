@@ -56,14 +56,17 @@ repositories {
 }
 
 dependencies {
-    // 🧠 The ExecuTorch "Brain" Runner
+    // 🧠 The Core Engine (Reads the .pte file)
     implementation("org.pytorch:executorch-android:1.1.0")
     
-    // ⚙️ Required Native Helpers (The "Glue")
+    // ⚡ The NPU Turbo (Talks to your S25 Ultra's Hexagon NPU)
+    implementation("org.pytorch:executorch-android-qnn:1.1.0")
+    
+    // ⚙️ The "Glue" (Required for native Facebook/PyTorch code)
     implementation("com.facebook.soloader:soloader:0.11.0")
     implementation("com.facebook.fbjni:fbjni:0.7.0")
 
-    // Android Essentials
+    // Keep your standard Android stuff
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }
