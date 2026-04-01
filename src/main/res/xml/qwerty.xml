@@ -66,6 +66,6 @@
         <Key android:codes="32" android:keyLabel=" " android:keyWidth="30%p"/>
         <Key android:codes="46" android:keyLabel="." android:keyWidth="10%p"/>
         <Key android:codes="-10" android:keyLabel="😊" android:keyWidth="10%p"/>
-        <Key android:codes="-4" android:keyLabel="ENTER" android:keyWidth="10%p" android:keyEdgeFlags="right"/>
+        <Key android:codes="-4" android:keyIcon="@drawable/ic_enter" android:keyWidth="15%p" android:keyEdgeFlags="right"/>
     </Row>
 </Keyboard>
