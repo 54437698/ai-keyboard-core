@@ -52,7 +52,8 @@ android {
 repositories {
     google()
     mavenCentral()
-    maven { url 'https://ossci-android.s3.amazonaws.com/executorch/release/1.1.0' } // Direct link to ExecuTorch AARs
+    // 🎯 This is the "secret" warehouse for ExecuTorch NPU drivers
+    maven { url 'https://ossci-android.s3.amazonaws.com/executorch/release/1.1.0' }
 }
 
 dependencies {
