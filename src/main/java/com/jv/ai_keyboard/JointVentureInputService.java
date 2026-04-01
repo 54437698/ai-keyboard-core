@@ -8,6 +8,7 @@ import android.inputmethodservice.KeyboardView;
 import android.view.View;
 import android.view.KeyEvent;
 import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.EditorInfo;
 
 public class JointVentureInputService extends InputMethodService implements KeyboardView.OnKeyboardActionListener {
     
@@ -64,34 +65,48 @@ public class JointVentureInputService extends InputMethodService implements Keyb
             case -1: 
                 handleShiftLogic();
                 break;
-            case -5: 
+            case -5: // DELETE
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
                 break;
+            case -4: // DONE / ENTER
             case 10: 
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER));
                 ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER));
                 break;
-            case -2: 
+            case -2: // Layout Switch (?123 / ABC)
                 toggleKeyboardLayout();
                 break;
-            case 999: 
-                ic.commitText("😂", 1);
+            case -10: // Emoji Button (Updated from 999)
+                ic.commitText("😊", 1);
+                break;
+            case -100: // G-Button (AI Settings / Import)
+                // For now, let's just confirm it's working
+                ic.commitText("[AI Ready]", 1); 
                 break;
             default:
                 char code = (char) primaryCode;
-                if (Character.isLetter(code) && isCaps) {
+                if (Character.isLetter(code) && (isCaps || mCapsLock)) {
                     code = Character.toUpperCase(code);
                 }
                 ic.commitText(String.valueOf(code), 1);
                 
-                // AI TRIGGER: Prediction happens in the background
-                final String context = ic.getTextBeforeCursor(20, 0).toString();
+                // --- AI TRIGGER WITH SAFETY ---
+                final String currentContext = ic.getTextBeforeCursor(20, 0).toString();
                 new Thread(() -> {
-                    String suggestion = npuEngine.getPrediction(context);
-                    if (suggestion != null) Log.d("JV_AI", "Llama: " + suggestion);
+                    try {
+                        // CRITICAL: Only call the NPU if the model file was actually found
+                        // This prevents the "Crash on Tap" with the 1MB fake model!
+                        if (npuEngine != null && new File(getExternalFilesDir(null), "model.pte").exists()) {
+                            String suggestion = npuEngine.getPrediction(currentContext);
+                            if (suggestion != null) Log.d("JV_AI", "Llama: " + suggestion);
+                        }
+                    } catch (Exception e) {
+                        Log.e("JV_AI", "NPU Prediction failed - bypassing to prevent crash", e);
+                    }
                 }).start();
 
+                // Reset shift if not in Caps Lock
                 if (isCaps && !mCapsLock) {
                     isCaps = false;
                     mKeyboard.setShifted(false);
