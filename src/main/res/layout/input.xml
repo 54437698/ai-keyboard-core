@@ -8,17 +8,14 @@
 
     <include layout="@layout/prediction_toolbar" />
 
-    <?xml version="1.0" encoding="utf-8"?>
-<android.inputmethodservice.KeyboardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/keyboard"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"
-    android:keyPreviewLayout="@null"
-    android:background="#1C1C1C"
-    android:keyBackground="@android:drawable/btn_default"
-    android:keyTextColor="#FFFFFF"
-    android:labelTextSize="18sp" />
+    <android.inputmethodservice.KeyboardView
+        android:id="@+id/keyboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:keyPreviewLayout="@null"
+        android:background="#1C1C1C"
+        android:keyBackground="@android:drawable/btn_default"
+        android:keyTextColor="#FFFFFF"
+        android:labelTextSize="18sp" />
 
 </LinearLayout>
